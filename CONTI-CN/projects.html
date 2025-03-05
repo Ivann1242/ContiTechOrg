@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目 - CONTI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .project-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .project-item {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .project-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .project-image {
+            position: relative;
+            overflow: hidden;
+            padding-top: 56.25%; /* 16:9 比例 */
+        }
+
+        .project-image img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .project-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .project-item:hover .project-overlay {
+            opacity: 1;
+        }
+
+        .project-content {
+            padding: 20px;
+        }
+
+        .project-category {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--hover-color);
+            color: var(--primary-color);
+            border-radius: 16px;
+            font-size: 0.875rem;
+            margin-bottom: 10px;
+        }
+
+        .project-status {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 16px;
+            font-size: 0.875rem;
+            margin-left: 10px;
+        }
+
+        .project-detail {
+            margin-top: 40px;
+        }
+
+        .project-blocks {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .project-block {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .project-block.text {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .project-block.image img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">CONTI</div>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="about.html">关于我们</a></li>
+                <li><a href="technology.html">技术</a></li>
+                <li><a href="projects.html" class="active">项目</a></li>
+                <li><a href="news.html">新闻</a></li>
+                <li><a href="join.html">加入我们</a></li>
+                <li><a href="contact.html">联系我们</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>我们的项目</h1>
+            <p>产生真实影响的创新解决方案</p>
+        </div>
+    </section>
+
+    <!-- Featured Projects -->
+    <section class="featured-projects">
+        <div class="container">
+            <h2>特色项目</h2>
+            <div class="project-showcase">
+                <div class="project-item">
+                    <div class="project-image">
+                        <img src="A1 generator.png" alt="连续性文本生成器">
+                        <div class="project-overlay">
+                            <a href="ceeg-project.html" class="btn primary">了解更多</a>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <span class="project-category">自然语言处理</span>
+                        <h3>连续性文本生成器</h3>
+                        <p>该项目致力于开发先进的文本生成技术，提升自然语言处理的能力。</p>
+                        <div class="project-status">
+                            <span class="status-badge">进行中</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Project Categories -->
+    <section class="project-categories">
+        <div class="container">
+            <h2>项目类别</h2>
+            <div class="category-grid">
+                <div class="category-item">
+                    <i class="fas fa-city"></i>
+                    <h3>智慧城市</h3>
+                    <p>城市发展和智能基础设施解决方案</p>
+                </div>
+                <div class="category-item">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>商业分析</h3>
+                    <p>数据驱动的商业智能解决方案</p>
+                </div>
+                <div class="category-item">
+                    <i class="fas fa-network-wired"></i>
+                    <h3>基础设施</h3>
+                    <p>网络和系统基础设施项目</p>
+                </div>
+                <div class="category-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>安全</h3>
+                    <p>网络安全和数据保护解决方案</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-envelope"></i> Email: ContiTechOrg@gmail.com</p>
+                    <p><i class="fas fa-phone"></i> Phone: 412-654-0901</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Follow Us</h4>
+                    <div class="social-links">
+                        <a href="https://www.linkedin.com/company/106237409/admin/dashboard/" title="LinkedIn" target="_blank"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://www.instagram.com/contitechorg/" title="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="#" title="GitHub"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 CONTI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+    <script>
+        // 获取并显示项目列表
+        async function loadProjects() {
+            try {
+                const API_BASE_URL = 'https://ec2-18-119-132-144.us-east-2.compute.amazonaws.com'; // 使用HTTPS
+                const response = await fetch(`${API_BASE_URL}/api/projects`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('加载项目失败');
+                }
+                
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    displayProjects(data);
+                } else if (data.projects && Array.isArray(data.projects)) {
+                    displayProjects(data.projects);
+                } else {
+                    throw new Error('无效的数据格式');
+                }
+            } catch (error) {
+                console.error('加载项目失败:', error);
+                document.querySelector('.project-showcase').innerHTML = `
+                    <div class="error-message" style="text-align: center; padding: 20px; color: #666;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>加载项目失败，请稍后重试</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayProjects(projects) {
+            const container = document.querySelector('.project-showcase');
+            container.innerHTML = projects.map(project => {
+                // 获取第一张图片作为封面
+                const coverImage = project.coverImage || 
+                                 (project.blocks && project.blocks.find(b => b.type === 'image')?.content) || 
+                                 'images/placeholder.jpg';
+                
+                return `
+                    <div class="project-item">
+                        <div class="project-image">
+                            <img src="${coverImage}" 
+                                 alt="${project.title}"
+                                 onerror="this.onerror=null; this.src='images/placeholder.jpg';">
+                            <div class="project-overlay">
+                                <a href="/project-detail.html?id=${project.id}" class="btn primary">了解更多</a>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <div class="project-header">
+                                <span class="project-category">${project.category || '未分类'}</span>
+                                <span class="project-status">${project.status || '进行中'}</span>
+                            </div>
+                            <h3>${project.title}</h3>
+                            <p>${project.description || (project.blocks && project.blocks.find(b => b.type === 'text')?.content || '').substring(0, 100)}...</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 页面加载时获取项目列表
+        document.addEventListener('DOMContentLoaded', loadProjects);
+    </script>
+</body>
+</html>

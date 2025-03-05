@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目详情 - CONTI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --text-color: #333;
+            --border-color: #ddd;
+            --bg-color: #f8f9fa;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .project-header {
+            background-color: white;
+            padding: 40px 0;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-cover {
+            width: 100%;
+            height: 300px;
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .project-info {
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: -50px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .project-title {
+            font-size: 2.5em;
+            margin: 0 0 20px 0;
+            color: var(--text-color);
+        }
+
+        .project-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .meta-item i {
+            color: var(--primary-color);
+        }
+
+        .project-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .content-block {
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .content-block.text {
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-color);
+        }
+
+        .content-block.image {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .content-block.image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .project-header {
+                padding: 20px 0;
+            }
+
+            .project-title {
+                font-size: 2em;
+            }
+
+            .project-meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="project-header">
+        <div class="container">
+            <a href="projects.html" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                返回项目列表
+            </a>
+            <div id="projectCover" class="project-cover"></div>
+            <div class="project-info">
+                <h1 class="project-title" id="projectTitle">加载中...</h1>
+                <div class="project-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-folder"></i>
+                        <span id="projectCategory">加载中...</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-clock"></i>
+                        <span id="projectStatus">加载中...</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-calendar"></i>
+                        <span id="projectDate">加载中...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="project-content" id="projectContent">
+            <!-- 内容将通过 JavaScript 动态加载 -->
+        </div>
+    </div>
+
+    <script>
+        async function loadProjectDetails() {
+            try {
+                const API_BASE_URL = 'https://ec2-18-119-132-144.us-east-2.compute.amazonaws.com'; // 使用HTTPS
+                // 从 URL 参数获取项目 ID
+                const urlParams = new URLSearchParams(window.location.search);
+                const projectId = urlParams.get('id');
+                
+                if (!projectId) {
+                    throw new Error('未找到项目ID');
+                }
+                
+                // 修改为新的API路径
+                const response = await fetch(`${API_BASE_URL}/api/admin/projects/${projectId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('项目不存在或已被删除');
+                    }
+                    throw new Error(`加载失败: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                if (!data.project) {
+                    throw new Error('项目数据格式不正确');
+                }
+                
+                const project = data.project;
+                
+                // 设置封面图
+                const coverImage = project.coverImage || 
+                                 (project.blocks && project.blocks.find(b => b.type === 'image')?.content) || 
+                                 'images/placeholder.jpg';
+                document.getElementById('projectCover').style.backgroundImage = `url('${coverImage}')`;
+                
+                // 更新项目基本信息
+                document.getElementById('projectTitle').textContent = project.title || '未命名项目';
+                document.getElementById('projectCategory').textContent = project.category || '未分类';
+                document.getElementById('projectStatus').textContent = project.status || '未知';
+                document.getElementById('projectDate').textContent = project.date ? 
+                    new Date(project.date).toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) : '未知时间';
+                
+                // 更新页面标题
+                document.title = `${project.title || '未命名项目'} - 项目详情 - CONTI`;
+                
+                // 渲染项目内容块
+                const contentContainer = document.getElementById('projectContent');
+                if (!project.blocks || !Array.isArray(project.blocks) || project.blocks.length === 0) {
+                    contentContainer.innerHTML = `
+                        <div class="content-block text" style="text-align: center; color: #666;">
+                            <i class="fas fa-info-circle"></i>
+                            暂无项目内容
+                        </div>
+                    `;
+                    return;
+                }
+
+                contentContainer.innerHTML = project.blocks.map(block => {
+                    if (block.type === 'text') {
+                        return `
+                            <div class="content-block text">
+                                ${block.content.replace(/\n/g, '<br>')}
+                            </div>
+                        `;
+                    } else if (block.type === 'image') {
+                        return `
+                            <div class="content-block image">
+                                <img src="${block.content}" 
+                                     alt="项目图片" 
+                                     onerror="this.onerror=null; this.src='images/placeholder.jpg';"
+                                     loading="lazy">
+                            </div>
+                        `;
+                    }
+                    return '';
+                }).join('');
+            } catch (error) {
+                console.error('加载项目详情失败:', error);
+                document.getElementById('projectContent').innerHTML = `
+                    <div class="content-block text" style="text-align: center; color: #dc3545;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p style="font-size: 1.2em; margin: 10px 0;">${error.message}</p>
+                        <p style="color: #666;">请确保您已登录并有权限访问此项目</p>
+                        <a href="/" class="back-button" style="margin-top: 20px; display: inline-block;">
+                            <i class="fas fa-home"></i>
+                            返回首页
+                        </a>
+                    </div>
+                `;
+            }
+        }
+
+        // 检查登录状态
+        function checkAuth() {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                window.location.href = 'admin-login.html';
+                return false;
+            }
+            return true;
+        }
+
+        // 页面加载时先检查登录状态，然后获取项目详情
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAuth()) {
+                loadProjectDetails();
+            }
+        });
+    </script>
+</body>
+</html> 
