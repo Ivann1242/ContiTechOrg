@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEEG 项目详情 - CONTI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">CONTI</div>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="about.html">关于我们</a></li>
+                <li><a href="technology.html">技术</a></li>
+                <li><a href="projects.html">项目</a></li>
+                <li><a href="news.html">新闻</a></li>
+                <li><a href="join.html">加入我们</a></li>
+                <li><a href="contact.html">联系我们</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Project Details -->
+    <section class="project-details">
+        <div class="container">
+            <h1>CEEG 项目详情</h1>
+            <img src="A1 generator.png" alt="CEEG Project Image" class="project-image">
+            <img src="Archetecture.png" alt="Project Architecture" class="project-image">
+            <h2>灵感</h2>
+            <p>CEEG（Continuity-Enhanced Emotional Guidance）项目的灵感来源于对动态故事系统的需求，该系统可以根据实时情感反馈进行调整。传统的故事叙述遵循固定的叙述方式，限制了用户的互动。我们的目标是创建一个由AI驱动的系统，根据用户的情感修改故事情节，提供真正互动和个性化的体验。借鉴心理参与模型，我们设计了CEEG，以通过将叙述进展与实时情感状态对齐来增强沉浸感。</p>
+            
+            <h2>功能</h2>
+            <p>CEEG集成了面部情感识别、满意度建模、结构化故事预测和文本生成，创建了一个响应式故事系统。它捕捉实时用户情感，将其处理为满意度分数（k_satisfaction），然后根据历史模式预测下一个逻辑故事事件。使用最近邻搜索算法，系统检索最具上下文相关性的文本片段，动态塑造叙述以保持参与和用户兴趣。</p>
+            
+            <h2>构建过程</h2>
+            <p>我们使用模块化架构开发了CEEG，确保其组件之间的无缝交互。面部情感识别模型在深度学习框架上训练，以分类六种核心情感。满意度模型将情感分数转换为结构化反馈信号。基于CRF的结构化预测模型预测故事的下一个状态（S_matrix）。最后，最近邻搜索选择最相关的文本片段，允许连贯且上下文适当的故事进展。系统经过优化以实现实时处理和GPU加速，以提高效率。</p>
+            
+            <h2>遇到的挑战</h2>
+            <p>一个主要挑战是将情感映射到满意度，以保持叙述的一致性。简单的线性模型未能捕捉情感波动与参与之间的复杂关系，因此我们实施了加权变换函数以平衡满意度变化。另一个问题是结构化故事建模中的高维输入，导致计算效率低下。我们优化了特征选择和增量训练以缓解这些问题。最后，确保生成文本的语义一致性需要微调检索算法，以优先考虑逻辑流和上下文相关性。</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-envelope"></i> Email: ContiTechOrg@gmail.com</p>
+                    <p><i class="fas fa-phone"></i> Phone: 412-654-0901</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Follow Us</h4>
+                    <div class="social-links">
+                        <a href="https://www.linkedin.com/company/106237409/admin/dashboard/" title="LinkedIn" target="_blank"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://www.instagram.com/contitechorg/" title="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="#" title="GitHub"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 CONTI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>

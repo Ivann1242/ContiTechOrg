@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新闻 - CONTI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">CONTI</div>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="about.html">关于我们</a></li>
+                <li><a href="technology.html">技术</a></li>
+                <li><a href="projects.html">项目</a></li>
+                <li><a href="news.html" class="active">新闻</a></li>
+                <li><a href="join.html">加入我们</a></li>
+                <li><a href="contact.html">联系我们</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>最新动态</h1>
+            <p>了解CONTI的最新发展</p>
+        </div>
+    </section>
+
+    <!-- Featured News -->
+    <section class="featured-news">
+        <div class="container">
+            <h2>最新动态</h2>
+            <div class="news-grid">
+                
+                    
+                        <div class="news-item featured" data-id="7">
+                            <div class="news-image">
+                                
+                                    <img src="/uploads/1741045964263-854943043.png" alt="test3">
+                                
+                                <span class="news-category">新闻</span>
+                            </div>
+                            <div class="news-content">
+                                <div class="news-meta">
+                                    <span class="date">2025/3/3</span>
+                                    <span class="read-time">3分钟阅读</span>
+                                </div>
+                                <h2>test3</h2>
+                                <p>I love you dr mosse</p>
+                                <a href="#" class="read-more"><i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    
+                        <div class="news-item " data-id="6">
+                            <div class="news-image">
+                                
+                                <span class="news-category">新闻</span>
+                            </div>
+                            <div class="news-content">
+                                <div class="news-meta">
+                                    <span class="date">2025/3/3</span>
+                                    <span class="read-time">3分钟阅读</span>
+                                </div>
+                                <h3>测试新闻</h3>
+                                <p>这是一条测试新闻</p>
+                                <a href="#" class="read-more"><i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    
+                        <div class="news-item " data-id="5">
+                            <div class="news-image">
+                                
+                                <span class="news-category">新闻</span>
+                            </div>
+                            <div class="news-content">
+                                <div class="news-meta">
+                                    <span class="date">2025/3/3</span>
+                                    <span class="read-time">3分钟阅读</span>
+                                </div>
+                                <h3>test2</h3>
+                                <p>333</p>
+                                <a href="#" class="read-more"><i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    
+                        <div class="news-item " data-id="4">
+                            <div class="news-image">
+                                
+                                <span class="news-category">新闻</span>
+                            </div>
+                            <div class="news-content">
+                                <div class="news-meta">
+                                    <span class="date">2025/3/3</span>
+                                    <span class="read-time">3分钟阅读</span>
+                                </div>
+                                <h3>测试新闻</h3>
+                                <p>这是一条测试新闻</p>
+                                <a href="#" class="read-more"><i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    
+                        <div class="news-item " data-id="3">
+                            <div class="news-image">
+                                
+                                <span class="news-category">新闻</span>
+                            </div>
+                            <div class="news-content">
+                                <div class="news-meta">
+                                    <span class="date">2025/3/3</span>
+                                    <span class="read-time">3分钟阅读</span>
+                                </div>
+                                <h3>1112</h3>
+                                <p>1112</p>
+                                <a href="#" class="read-more"><i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    
+                
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Signup -->
+    <section class="newsletter-section">
+        <div class="container">
+            <h2>保持更新</h2>
+            <p>订阅我们的通讯以获取最新动态和见解</p>
+            <div id="message" class="hidden"></div>
+            <form id="subscriptionForm" class="newsletter-form">
+                <input type="email" id="emailInput" placeholder="输入您的邮箱" required>
+                <button type="submit" class="btn primary" id="subscribeBtn">订阅</button>
+            </form>
+            <div id="unsubscribeSection" class="hidden">
+                <p>已经订阅？</p>
+                <form id="unsubscribeForm" class="newsletter-form">
+                    <input type="email" id="unsubEmailInput" placeholder="输入您的邮箱" required>
+                    <button type="submit" class="btn secondary">取消订阅</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-envelope"></i> Email: ContiTechOrg@gmail.com</p>
+                    <p><i class="fas fa-phone"></i> Phone: 412-654-0901</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Follow Us</h4>
+                    <div class="social-links">
+                        <a href="https://www.linkedin.com/company/106237409/admin/dashboard/" title="LinkedIn" target="_blank"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://www.instagram.com/contitechorg/" title="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="#" title="GitHub"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 CONTI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <style>
+    .hidden {
+        display: none;
+    }
+    #message {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+    }
+    .success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    .error {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    .newsletter-section {
+        padding: 40px 0;
+        background-color: #f8f9fa;
+    }
+    .newsletter-form {
+        display: flex;
+        gap: 10px;
+        max-width: 500px;
+        margin: 20px auto;
+    }
+    .newsletter-form input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    #unsubscribeSection {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+    }
+    </style>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const subscriptionForm = document.getElementById('subscriptionForm');
+        const unsubscribeForm = document.getElementById('unsubscribeForm');
+        const messageDiv = document.getElementById('message');
+        const unsubscribeSection = document.getElementById('unsubscribeSection');
+
+        // 显示消息函数
+        function showMessage(message, type) {
+            messageDiv.textContent = message;
+            messageDiv.className = type;
+            messageDiv.classList.remove('hidden');
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 3000);
+        }
+
+        // 订阅处理
+        subscriptionForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('emailInput').value;
+
+            try {
+                const response = await fetch('/api/subscribe', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showMessage('订阅成功！感谢您的订阅。', 'success');
+                    subscriptionForm.reset();
+                } else {
+                    showMessage(data.error || '订阅失败，请稍后重试。', 'error');
+                }
+            } catch (error) {
+                showMessage('订阅失败，请稍后重试。', 'error');
+            }
+        });
+
+        // 取消订阅处理
+        unsubscribeForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('unsubEmailInput').value;
+
+            try {
+                const response = await fetch('/api/unsubscribe', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showMessage('已成功取消订阅。', 'success');
+                    unsubscribeForm.reset();
+                } else {
+                    showMessage(data.error || '取消订阅失败，请稍后重试。', 'error');
+                }
+            } catch (error) {
+                showMessage('取消订阅失败，请稍后重试。', 'error');
+            }
+        });
+
+        // 显示取消订阅部分的切换按钮
+        const toggleUnsubscribe = document.createElement('button');
+        toggleUnsubscribe.textContent = '已经订阅？点击这里取消订阅';
+        toggleUnsubscribe.className = 'btn secondary';
+        toggleUnsubscribe.style.marginTop = '10px';
+        toggleUnsubscribe.onclick = function(e) {
+            e.preventDefault();
+            unsubscribeSection.classList.toggle('hidden');
+        };
+        subscriptionForm.after(toggleUnsubscribe);
+    });
+    </script>
+</body>
+</html> 

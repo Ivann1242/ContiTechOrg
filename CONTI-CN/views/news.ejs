@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新闻 - CONTI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">CONTI</div>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="about.html">关于我们</a></li>
+                <li><a href="technology.html">技术</a></li>
+                <li><a href="projects.html">项目</a></li>
+                <li><a href="news.html" class="active">新闻</a></li>
+                <li><a href="join.html">加入我们</a></li>
+                <li><a href="contact.html">联系我们</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>最新动态</h1>
+            <p>了解CONTI的最新发展</p>
+        </div>
+    </section>
+
+    <!-- Featured News -->
+    <section class="featured-news">
+        <div class="container">
+            <h2>最新动态</h2>
+            <div class="news-grid">
+                <% if (news && news.length > 0) { %>
+                    <% news.forEach((item, index) => { %>
+                        <div class="news-item <%= index === 0 ? 'featured' : '' %>" data-id="<%= item.id %>">
+                            <div class="news-image">
+                                <% if (item.image_url) { %>
+                                    <img src="<%= item.image_url %>" alt="<%= item.title %>">
+                                <% } %>
+                                <span class="news-category">新闻</span>
+                            </div>
+                            <div class="news-content">
+                                <div class="news-meta">
+                                    <span class="date"><%= new Date(item.date).toLocaleDateString('zh-CN') %></span>
+                                    <span class="read-time">3分钟阅读</span>
+                                </div>
+                                <h<%= index === 0 ? '2' : '3' %>><%= item.title %></h<%= index === 0 ? '2' : '3' %>>
+                                <p><%= item.content %></p>
+                                <a href="#" class="read-more"><i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="no-news">
+                        <p>暂无新闻</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Signup -->
+    <section class="newsletter-section">
+        <div class="container">
+            <h2>保持更新</h2>
+            <p>订阅我们的通讯以获取最新动态和见解</p>
+            <form class="newsletter-form">
+                <input type="email" placeholder="输入您的邮箱" required>
+                <button type="submit" class="btn primary">订阅</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-envelope"></i> Email: ContiTechOrg@gmail.com</p>
+                    <p><i class="fas fa-phone"></i> Phone: 412-654-0901</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Follow Us</h4>
+                    <div class="social-links">
+                        <a href="https://www.linkedin.com/company/106237409/admin/dashboard/" title="LinkedIn" target="_blank"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://www.instagram.com/contitechorg/" title="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="#" title="GitHub"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 CONTI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html> 

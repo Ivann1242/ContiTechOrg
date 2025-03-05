@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>加入我们 - CONTI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">CONTI</div>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="about.html">关于我们</a></li>
+                <li><a href="technology.html">技术</a></li>
+                <li><a href="projects.html">项目</a></li>
+                <li><a href="news.html">新闻</a></li>
+                <li><a href="join.html" class="active">加入我们</a></li>
+                <li><a href="contact.html">联系我们</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>加入CONTI</h1>
+            <p>成为我们技术创新社区的一员</p>
+        </div>
+    </section>
+
+    <!-- Why Join Us -->
+    <section class="why-join-section">
+        <div class="container">
+            <h2>为什么加入CONTI？</h2>
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <i class="fas fa-lightbulb"></i>
+                    <h3>创新</h3>
+                    <p>参与前沿技术项目和研究</p>
+                </div>
+                <div class="benefit-item">
+                    <i class="fas fa-users"></i>
+                    <h3>社区</h3>
+                    <p>与志同道合的技术爱好者交流</p>
+                </div>
+                <div class="benefit-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h3>学习</h3>
+                    <p>获取工作坊、培训和指导机会</p>
+                </div>
+                <div class="benefit-item">
+                    <i class="fas fa-hands-helping"></i>
+                    <h3>影响力</h3>
+                    <p>为有意义的技术解决方案做出贡献</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Member Roles -->
+    <section class="roles-section">
+        <div class="container">
+            <h2>可选职位</h2>
+            <div class="roles-grid" id="positions-container">
+                <!-- 职位将通过 JavaScript 动态加载 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 在 roles-section 部分后添加订阅部分 -->
+    <section class="subscribe-section">
+        <div class="container">
+            <div class="subscribe-box">
+                <h2>订阅最新岗位</h2>
+                <p>第一时间获取CONTI的最新职位发布通知</p>
+                <form id="position-subscribe-form" class="subscribe-form">
+                    <div class="form-group">
+                        <input type="email" id="position-subscribe-email" placeholder="请输入您的邮箱地址" required>
+                        <button type="submit" class="subscribe-btn">订阅</button>
+                    </div>
+                    <p class="subscribe-message" id="position-subscribe-message"></p>
+                </form>
+                <div class="unsubscribe-section">
+                    <p>想要取消订阅？</p>
+                    <form id="position-unsubscribe-form" class="unsubscribe-form">
+                        <div class="form-group">
+                            <input type="email" id="position-unsubscribe-email" placeholder="请输入您的邮箱地址" required>
+                            <button type="submit" class="unsubscribe-btn">取消订阅</button>
+                        </div>
+                        <p class="unsubscribe-message" id="position-unsubscribe-message"></p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Application Instructions -->
+    <section id="join-form" class="join-form-section">
+        <div class="container">
+            <h2>申请流程</h2>
+            <div class="application-instructions">
+                <h3>如何申请</h3>
+                <div class="instruction-steps">
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <p>选择您感兴趣的职位</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <p>准备您的简历（PDF格式）</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">3</span>
+                        <p>撰写一段自我描述，包括您的背景、经验和为什么对这个职位感兴趣</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">4</span>
+                        <p>发送邮件至 <strong>ContiTechOrg@gmail.com</strong></p>
+                    </div>
+                </div>
+                
+                <div class="email-template">
+                    <h4>邮件格式</h4>
+                    <ul>
+                        <li><strong>邮件标题：</strong> [职位名称] 申请 - 您的姓名</li>
+                        <li><strong>附件：</strong> 您的简历（PDF格式）</li>
+                        <li><strong>正文：</strong> 您的自我描述</li>
+                    </ul>
+                </div>
+
+                <div class="important-notes">
+                    <h4>注意事项</h4>
+                    <ul>
+                        <li>请确保邮件标题格式正确，以便我们及时处理您的申请</li>
+                        <li>简历请使用PDF格式，文件名为"姓名-简历.pdf"</li>
+                        <li>自我描述建议包含您的技术背景、项目经验和对该职位的期望</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        .application-instructions {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .instruction-steps {
+            margin: 2rem 0;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: #1a73e8;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: bold;
+        }
+
+        .email-template, .important-notes {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .email-template h4, .important-notes h4 {
+            margin-bottom: 1rem;
+            color: #1a73e8;
+        }
+
+        .email-template ul, .important-notes ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .email-template li, .important-notes li {
+            margin-bottom: 0.5rem;
+        }
+
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .role-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .role-header {
+            margin-bottom: 1rem;
+        }
+
+        .role-type {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: #e8f0fe;
+            color: #1a73e8;
+            border-radius: 16px;
+            font-size: 0.875rem;
+        }
+
+        .role-requirements {
+            margin: 1rem 0;
+        }
+
+        .role-requirements h4 {
+            margin-bottom: 0.5rem;
+        }
+
+        /* 添加订阅相关样式 */
+        .subscribe-section {
+            padding: 4rem 0;
+            background-color: #f8f9fa;
+        }
+
+        .subscribe-box {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subscribe-box h2 {
+            color: #1a73e8;
+            margin-bottom: 1rem;
+        }
+
+        .subscribe-form, .unsubscribe-form {
+            margin-top: 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .subscribe-btn, .unsubscribe-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .subscribe-btn {
+            background-color: #1a73e8;
+            color: white;
+        }
+
+        .subscribe-btn:hover {
+            background-color: #1557b0;
+        }
+
+        .unsubscribe-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .unsubscribe-btn:hover {
+            background-color: #bb2d3b;
+        }
+
+        .subscribe-message, .unsubscribe-message {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .unsubscribe-section {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+        }
+    </style>
+
+    <script>
+        // 获取职位列表
+        async function fetchPositions() {
+            try {
+                const response = await fetch('/api/positions');
+                const data = await response.json();
+                if (data.success) {
+                    displayPositions(data.positions);
+                } else {
+                    console.error('获取职位列表失败:', data.error);
+                }
+            } catch (error) {
+                console.error('获取职位列表失败:', error);
+            }
+        }
+
+        // 显示职位列表
+        function displayPositions(positions) {
+            const container = document.getElementById('positions-container');
+            if (positions.length === 0) {
+                container.innerHTML = '<p>暂无可用职位</p>';
+                return;
+            }
+            
+            container.innerHTML = positions.map(position => `
+                <div class="role-card">
+                    <div class="role-header">
+                        <h3>${position.title}</h3>
+                        <span class="role-type">${position.type}</span>
+                    </div>
+                    <p>${position.description}</p>
+                    <div class="role-requirements">
+                        <h4>要求：</h4>
+                        <ul>
+                            ${position.requirements.map(req => `<li>${req}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="role-responsibilities">
+                        <h4>职责：</h4>
+                        <ul>
+                            ${position.responsibilities.map(resp => `<li>${resp}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 页面加载时获取职位列表
+        document.addEventListener('DOMContentLoaded', fetchPositions);
+
+        // 添加订阅相关的JavaScript代码
+        document.getElementById('position-subscribe-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('position-subscribe-email').value;
+            const messageElement = document.getElementById('position-subscribe-message');
+            
+            try {
+                const response = await fetch('/api/subscribe-positions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    messageElement.style.color = '#28a745';
+                    messageElement.textContent = '订阅成功！您将收到一封确认邮件。';
+                    document.getElementById('position-subscribe-email').value = '';
+                } else {
+                    messageElement.style.color = '#dc3545';
+                    messageElement.textContent = data.error || '订阅失败，请稍后重试。';
+                }
+            } catch (error) {
+                messageElement.style.color = '#dc3545';
+                messageElement.textContent = '订阅失败，请稍后重试。';
+            }
+        });
+
+        document.getElementById('position-unsubscribe-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('position-unsubscribe-email').value;
+            const messageElement = document.getElementById('position-unsubscribe-message');
+            
+            try {
+                const response = await fetch('/api/unsubscribe-positions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    messageElement.style.color = '#28a745';
+                    messageElement.textContent = '已成功取消订阅。';
+                    document.getElementById('position-unsubscribe-email').value = '';
+                } else {
+                    messageElement.style.color = '#dc3545';
+                    messageElement.textContent = data.error || '取消订阅失败，请稍后重试。';
+                }
+            } catch (error) {
+                messageElement.style.color = '#dc3545';
+                messageElement.textContent = '取消订阅失败，请稍后重试。';
+            }
+        });
+    </script>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-envelope"></i> Email: ContiTechOrg@gmail.com</p>
+                    <p><i class="fas fa-phone"></i> Phone: 412-654-0901</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Follow Us</h4>
+                    <div class="social-links">
+                        <a href="https://www.linkedin.com/company/106237409/admin/dashboard/" title="LinkedIn" target="_blank"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://www.instagram.com/contitechorg/" title="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="#" title="GitHub"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 CONTI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>
