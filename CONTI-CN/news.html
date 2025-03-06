@@ -131,15 +131,15 @@
         <div class="container">
             <h2>保持更新</h2>
             <p>订阅我们的通讯以获取最新动态和见解</p>
-            <div id="message" class="hidden"></div>
+            <div id="subscriptionMessage" class="hidden"></div>
             <form id="subscriptionForm" class="newsletter-form">
-                <input type="email" id="emailInput" placeholder="输入您的邮箱" required>
+                <input type="email" id="email" placeholder="输入您的邮箱" required>
                 <button type="submit" class="btn primary" id="subscribeBtn">订阅</button>
             </form>
             <div id="unsubscribeSection" class="hidden">
                 <p>已经订阅？</p>
                 <form id="unsubscribeForm" class="newsletter-form">
-                    <input type="email" id="unsubEmailInput" placeholder="输入您的邮箱" required>
+                    <input type="email" id="unsubscribeEmail" placeholder="输入您的邮箱" required>
                     <button type="submit" class="btn secondary">取消订阅</button>
                 </form>
             </div>
@@ -174,7 +174,7 @@
     .hidden {
         display: none;
     }
-    #message {
+    #subscriptionMessage {
         padding: 10px;
         margin: 10px 0;
         border-radius: 4px;
@@ -214,68 +214,72 @@
     document.addEventListener('DOMContentLoaded', function() {
         const subscriptionForm = document.getElementById('subscriptionForm');
         const unsubscribeForm = document.getElementById('unsubscribeForm');
-        const messageDiv = document.getElementById('message');
+        const messageDiv = document.getElementById('subscriptionMessage');
         const unsubscribeSection = document.getElementById('unsubscribeSection');
 
-        // 显示消息函数
-        function showMessage(message, type) {
-            messageDiv.textContent = message;
-            messageDiv.className = type;
-            messageDiv.classList.remove('hidden');
-            setTimeout(() => {
-                messageDiv.classList.add('hidden');
-            }, 3000);
-        }
-
-        // 订阅处理
+        // 处理订阅表单提交
         subscriptionForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            const email = document.getElementById('emailInput').value;
-
+            
+            const email = document.getElementById('email').value;
+            
             try {
                 const response = await fetch('/api/subscribe', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify({ email })
                 });
 
                 const data = await response.json();
-                if (data.success) {
-                    showMessage('订阅成功！感谢您的订阅。', 'success');
-                    subscriptionForm.reset();
+                
+                if (response.ok && data.success) {
+                    messageDiv.textContent = '订阅成功！感谢您的关注。';
+                    messageDiv.className = 'subscription-message success';
+                    document.getElementById('email').value = '';
                 } else {
-                    showMessage(data.error || '订阅失败，请稍后重试。', 'error');
+                    messageDiv.textContent = data.error || '订阅失败，请稍后重试';
+                    messageDiv.className = 'subscription-message error';
                 }
             } catch (error) {
-                showMessage('订阅失败，请稍后重试。', 'error');
+                console.error('订阅请求失败:', error);
+                messageDiv.textContent = '订阅失败，请稍后重试';
+                messageDiv.className = 'subscription-message error';
             }
         });
 
-        // 取消订阅处理
+        // 处理取消订阅表单提交
         unsubscribeForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            const email = document.getElementById('unsubEmailInput').value;
-
+            
+            const email = document.getElementById('unsubscribeEmail').value;
+            
             try {
                 const response = await fetch('/api/unsubscribe', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify({ email })
                 });
 
                 const data = await response.json();
-                if (data.success) {
-                    showMessage('已成功取消订阅。', 'success');
-                    unsubscribeForm.reset();
+                
+                if (response.ok && data.success) {
+                    messageDiv.textContent = '取消订阅成功！';
+                    messageDiv.className = 'subscription-message success';
+                    document.getElementById('unsubscribeEmail').value = '';
                 } else {
-                    showMessage(data.error || '取消订阅失败，请稍后重试。', 'error');
+                    messageDiv.textContent = data.error || '取消订阅失败，请稍后重试';
+                    messageDiv.className = 'subscription-message error';
                 }
             } catch (error) {
-                showMessage('取消订阅失败，请稍后重试。', 'error');
+                console.error('取消订阅请求失败:', error);
+                messageDiv.textContent = '取消订阅失败，请稍后重试';
+                messageDiv.className = 'subscription-message error';
             }
         });
 

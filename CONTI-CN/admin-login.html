@@ -121,6 +121,7 @@
             const messageDiv = document.getElementById('loginMessage');
             
             try {
+                console.log('准备发送登录请求');
                 const response = await fetch('/api/admin/login', {
                     method: 'POST',
                     headers: {
