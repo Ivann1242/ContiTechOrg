@@ -9,7 +9,6 @@ const fs = require('fs');
 const ejs = require('ejs');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
-const cors = require('cors');
 
 // 添加域名配置
 const DOMAIN = process.env.DOMAIN || 'http://3.22.241.231';
@@ -25,16 +24,22 @@ const EMAIL_PASS = process.env.EMAIL_PASS || '';
 // 基础中间件配置
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// CORS 中间件 - 放在最前面，确保所有路由都应用
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+    next();
+});
+
+// 静态文件中间件
 app.use(express.static(path.join(__dirname)));
 app.use('/uploads', express.static('uploads'));
-
-// 替换现有的 CORS 配置
-app.use(cors({
-    origin: '*',  // 允许所有来源访问
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-    credentials: true
-}));
 
 // 添加请求日志中间件
 app.use((req, res, next) => {
@@ -207,59 +212,42 @@ const db = new sqlite3.Database('news.db', (err) => {
                 }
             });
 
-            // 创建项目表
+            // 创建项目表（如果不存在）
             db.run(`CREATE TABLE IF NOT EXISTS projects (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
                 category TEXT NOT NULL,
                 status TEXT NOT NULL,
-                blocks TEXT NOT NULL,
+                blocks TEXT,
                 date TEXT NOT NULL
-            )`, (err) => {
-                if (err) {
-                    console.error('创建项目表失败:', err);
-                } else {
-                    console.log('项目表创建或已存在');
-                    
-                    // 检查项目表是否有数据
-                    db.get('SELECT COUNT(*) as count FROM projects', [], (err, row) => {
-                        if (err) {
-                            console.error('检查项目数量失败:', err);
-                            return;
-                        }
+            )`, () => {
+                // 检查是否有项目数据，没有则添加测试数据
+                db.get("SELECT COUNT(*) as count FROM projects", [], (err, row) => {
+                    if (!err && row.count === 0) {
+                        // 插入一条测试项目数据
+                        const testProject = {
+                            title: '测试项目',
+                            category: '技术',
+                            status: '进行中',
+                            blocks: JSON.stringify([
+                                { type: 'text', content: '这是一个测试项目的描述。' }
+                            ]),
+                            date: new Date().toISOString()
+                        };
                         
-                        // 如果没有数据，插入一些示例数据
-                        if (row.count === 0) {
-                            console.log('项目表为空，插入示例数据');
-                            
-                            const sampleProject = {
-                                title: '示例项目',
-                                category: '自然语言处理',
-                                status: '进行中',
-                                blocks: JSON.stringify([
-                                    {
-                                        type: 'text',
-                                        content: '这是一个示例项目，用于测试系统功能。'
-                                    }
-                                ]),
-                                date: new Date().toISOString()
-                            };
-                            
-                            db.run('INSERT INTO projects (title, category, status, blocks, date) VALUES (?, ?, ?, ?, ?)',
-                                [sampleProject.title, sampleProject.category, sampleProject.status, sampleProject.blocks, sampleProject.date],
-                                function(err) {
-                                    if (err) {
-                                        console.error('插入示例项目失败:', err);
-                                    } else {
-                                        console.log('示例项目插入成功，ID:', this.lastID);
-                                    }
+                        db.run(
+                            'INSERT INTO projects (title, category, status, blocks, date) VALUES (?, ?, ?, ?, ?)',
+                            [testProject.title, testProject.category, testProject.status, testProject.blocks, testProject.date],
+                            function(err) {
+                                if (err) {
+                                    console.error('插入测试项目数据失败:', err);
+                                } else {
+                                    console.log('测试项目数据插入成功，ID:', this.lastID);
                                 }
-                            );
-                        } else {
-                            console.log(`项目表中已有 ${row.count} 条数据`);
-                        }
-                    });
-                }
+                            }
+                        );
+                    }
+                });
             });
 
             // 所有表创建完成后启动服务器
