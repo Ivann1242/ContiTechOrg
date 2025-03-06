@@ -1270,63 +1270,76 @@
         });
 
         async function loadProjects() {
-            const token = checkAuth();
-            if (!token) return;
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                window.location.href = '/admin-login.html';
+                return;
+            }
 
             try {
                 const response = await fetch('/api/admin/projects', {
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
                     }
                 });
 
                 if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('adminToken');
+                        window.location.href = '/admin-login.html';
+                        return;
+                    }
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                const result = await response.json();
-                if (!result.projects || !Array.isArray(result.projects)) {
-                    throw new Error('服务器返回的数据格式不正确');
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.error || '加载项目失败');
                 }
 
-                const projectsList = document.getElementById('projectsList');
-                projectsList.innerHTML = result.projects.map(project => {
-                    // 查找第一张图片（如果有的话）
-                    const firstImage = project.blocks ? project.blocks.find(block => block.type === 'image') : null;
-                    const imageUrl = firstImage ? firstImage.content : '';
-                    
-                    return `
-                        <div class="project-item">
-                            <div class="project-title">${project.title}</div>
-                            ${imageUrl ? `
-                                <img src="${imageUrl}" 
-                                     class="project-preview-image" 
-                                     alt="${project.title}"
-                                     onerror="this.onerror=null; this.src='images/placeholder.jpg';">
-                            ` : ''}
-                            <div class="project-info">
-                                <span>类别：${project.category || '未分类'}</span>
-                                <span>状态：${project.status || '未知'}</span>
-                                <span>更新时间：${new Date(project.date).toLocaleString()}</span>
-                            </div>
-                            <div class="project-actions">
-                                <button class="btn btn-warning" onclick="editProject(${project.id})">
-                                    <i class="fas fa-edit"></i> 编辑
-                                </button>
-                                <button class="btn btn-danger" onclick="deleteProject(${project.id})">
-                                    <i class="fas fa-trash"></i> 删除
-                                </button>
-                                <a href="project-detail.html?id=${project.id}" class="btn btn-primary" target="_blank">
-                                    <i class="fas fa-eye"></i> 查看详情
-                                </a>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+                displayProjects(data.projects);
             } catch (error) {
-                console.error('加载项目列表失败:', error);
-                showMessage('加载项目列表失败: ' + error.message, 'error');
+                console.error('加载项目失败:', error);
+                showMessage('加载项目失败: ' + error.message, 'error');
             }
+        }
+
+        function displayProjects(projects) {
+            const projectsList = document.getElementById('projectsList');
+            projectsList.innerHTML = projects.map(project => {
+                // 查找第一张图片（如果有的话）
+                const firstImage = project.blocks ? project.blocks.find(block => block.type === 'image') : null;
+                const imageUrl = firstImage ? firstImage.content : '';
+                
+                return `
+                    <div class="project-item">
+                        <div class="project-title">${project.title}</div>
+                        ${imageUrl ? `
+                            <img src="${imageUrl}" 
+                                 class="project-preview-image" 
+                                 alt="${project.title}"
+                                 onerror="this.onerror=null; this.src='images/placeholder.jpg';">
+                        ` : ''}
+                        <div class="project-info">
+                            <span>类别：${project.category || '未分类'}</span>
+                            <span>状态：${project.status || '未知'}</span>
+                            <span>更新时间：${new Date(project.date).toLocaleString()}</span>
+                        </div>
+                        <div class="project-actions">
+                            <button class="btn btn-warning" onclick="editProject(${project.id})">
+                                <i class="fas fa-edit"></i> 编辑
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteProject(${project.id})">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                            <a href="project-detail.html?id=${project.id}" class="btn btn-primary" target="_blank">
+                                <i class="fas fa-eye"></i> 查看详情
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
     </script>
 </body>

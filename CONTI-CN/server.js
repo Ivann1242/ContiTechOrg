@@ -259,6 +259,13 @@ app.use((req, res, next) => {
     next();
 });
 
+// 添加API路由中间件
+app.use('/api', (req, res, next) => {
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    next();
+});
+
 // 根路由测试
 app.get('/', (req, res) => {
     res.json({ message: '服务器正在运行' });
@@ -300,35 +307,35 @@ app.get('/api/test-db', async (req, res) => {
     }
 });
 
-// 验证 JWT token 的中间件
-const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (!token) {
-        return res.status(401).json({ error: '未授权访问' });
-    }
-
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-        if (err) {
-            return res.status(403).json({ error: '无效的token' });
-        }
-        req.user = user;
-        next();
-    });
-};
-
-// 登录路由
+// 管理员登录路由
 app.post('/api/admin/login', (req, res) => {
     const { password } = req.body;
-
     if (password === ADMIN_PASSWORD) {
-        const token = jwt.sign({ role: 'admin' }, JWT_SECRET, { expiresIn: '24h' });
+        const token = jwt.sign({ admin: true }, JWT_SECRET, { expiresIn: '24h' });
         res.json({ success: true, token });
     } else {
         res.status(401).json({ success: false, error: '密码错误' });
     }
 });
+
+// 验证管理员Token的中间件
+const verifyAdminToken = (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ error: '未提供认证token' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        if (decoded.admin) {
+            next();
+        } else {
+            res.status(403).json({ error: '无权限访问' });
+        }
+    } catch (err) {
+        res.status(401).json({ error: 'token无效或已过期' });
+    }
+};
 
 // 新闻管理路由
 let newsItems = [];
@@ -489,7 +496,7 @@ app.get('/api/subscribers', async (req, res) => {
 
 // 修改新闻发布路由，添加邮件通知
 const oldPostNews = app.post.bind(app, '/api/admin/news');
-app.post('/api/admin/news', authenticateToken, upload.single('image'), async (req, res) => {
+app.post('/api/admin/news', verifyAdminToken, upload.single('image'), async (req, res) => {
     try {
         console.log('收到新闻发布请求');
         console.log('请求体:', req.body);
@@ -561,7 +568,7 @@ app.post('/api/admin/news', authenticateToken, upload.single('image'), async (re
     }
 });
 
-app.get('/api/admin/news', authenticateToken, async (req, res) => {
+app.get('/api/admin/news', verifyAdminToken, async (req, res) => {
     try {
         const news = await getNewsFromDatabase();
         res.json(news);
@@ -583,7 +590,7 @@ app.get('/news', async (req, res) => {
 });
 
 // 更新新闻
-app.put('/api/admin/news/:id', authenticateToken, upload.single('image'), async (req, res) => {
+app.put('/api/admin/news/:id', verifyAdminToken, upload.single('image'), async (req, res) => {
     try {
         const { id } = req.params;
         const { title, content, currentImage } = req.body;
@@ -621,7 +628,7 @@ app.put('/api/admin/news/:id', authenticateToken, upload.single('image'), async 
 });
 
 // 删除新闻
-app.delete('/api/admin/news/:id', authenticateToken, async (req, res) => {
+app.delete('/api/admin/news/:id', verifyAdminToken, async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -641,7 +648,7 @@ app.delete('/api/admin/news/:id', authenticateToken, async (req, res) => {
 });
 
 // 岗位管理路由
-app.get('/api/admin/positions', authenticateToken, async (req, res) => {
+app.get('/api/admin/positions', verifyAdminToken, async (req, res) => {
     try {
         const positions = await new Promise((resolve, reject) => {
             db.all('SELECT * FROM positions ORDER BY date DESC', [], (err, rows) => {
@@ -733,7 +740,7 @@ async function getActivePositionSubscribers() {
 }
 
 // 岗位订阅路由
-app.post('/api/subscribe-positions', async (req, res) => {
+app.post('/api/subscribe-positions', verifyAdminToken, async (req, res) => {
     try {
         const { email } = req.body;
         console.log('收到岗位订阅请求:', email);
@@ -787,7 +794,7 @@ app.post('/api/subscribe-positions', async (req, res) => {
     }
 });
 
-app.post('/api/unsubscribe-positions', async (req, res) => {
+app.post('/api/unsubscribe-positions', verifyAdminToken, async (req, res) => {
     try {
         const { email } = req.body;
         console.log('收到取消岗位订阅请求:', email);
@@ -809,7 +816,7 @@ app.post('/api/unsubscribe-positions', async (req, res) => {
 });
 
 // 修改添加岗位的路由，添加邮件通知功能
-app.post('/api/admin/positions', authenticateToken, async (req, res) => {
+app.post('/api/admin/positions', verifyAdminToken, async (req, res) => {
     try {
         const { title, type, description, requirements, responsibilities } = req.body;
         const date = new Date().toISOString();
@@ -892,7 +899,7 @@ app.post('/api/admin/positions', authenticateToken, async (req, res) => {
     }
 });
 
-app.get('/api/admin/positions/:id', authenticateToken, async (req, res) => {
+app.get('/api/admin/positions/:id', verifyAdminToken, async (req, res) => {
     try {
         const { id } = req.params;
         const position = await new Promise((resolve, reject) => {
@@ -913,7 +920,7 @@ app.get('/api/admin/positions/:id', authenticateToken, async (req, res) => {
     }
 });
 
-app.put('/api/admin/positions/:id', authenticateToken, async (req, res) => {
+app.put('/api/admin/positions/:id', verifyAdminToken, async (req, res) => {
     try {
         const { id } = req.params;
         const { title, type, description, requirements, responsibilities } = req.body;
@@ -938,7 +945,7 @@ app.put('/api/admin/positions/:id', authenticateToken, async (req, res) => {
     }
 });
 
-app.delete('/api/admin/positions/:id', authenticateToken, async (req, res) => {
+app.delete('/api/admin/positions/:id', verifyAdminToken, async (req, res) => {
     try {
         const { id } = req.params;
         
@@ -978,7 +985,7 @@ app.get('/api/positions', async (req, res) => {
 });
 
 // 项目管理路由
-app.get('/api/admin/projects', authenticateToken, async (req, res) => {
+app.get('/api/admin/projects', verifyAdminToken, async (req, res) => {
     try {
         const projects = await new Promise((resolve, reject) => {
             db.all('SELECT * FROM projects ORDER BY date DESC', [], (err, rows) => {
@@ -996,7 +1003,7 @@ app.get('/api/admin/projects', authenticateToken, async (req, res) => {
     }
 });
 
-app.post('/api/admin/projects', authenticateToken, async (req, res) => {
+app.post('/api/admin/projects', verifyAdminToken, async (req, res) => {
     try {
         const { title, category, status, blocks } = req.body;
         const date = new Date().toISOString();
@@ -1019,7 +1026,7 @@ app.post('/api/admin/projects', authenticateToken, async (req, res) => {
     }
 });
 
-app.get('/api/admin/projects/:id', authenticateToken, async (req, res) => {
+app.get('/api/admin/projects/:id', verifyAdminToken, async (req, res) => {
     try {
         const { id } = req.params;
         const project = await new Promise((resolve, reject) => {
@@ -1039,7 +1046,7 @@ app.get('/api/admin/projects/:id', authenticateToken, async (req, res) => {
     }
 });
 
-app.put('/api/admin/projects/:id', authenticateToken, async (req, res) => {
+app.put('/api/admin/projects/:id', verifyAdminToken, async (req, res) => {
     try {
         const { id } = req.params;
         const { title, category, status, blocks } = req.body;
@@ -1064,7 +1071,7 @@ app.put('/api/admin/projects/:id', authenticateToken, async (req, res) => {
     }
 });
 
-app.delete('/api/admin/projects/:id', authenticateToken, async (req, res) => {
+app.delete('/api/admin/projects/:id', verifyAdminToken, async (req, res) => {
     try {
         const { id } = req.params;
         
@@ -1086,15 +1093,7 @@ app.delete('/api/admin/projects/:id', authenticateToken, async (req, res) => {
 // 公开的项目列表路由
 app.get('/api/projects', async (req, res) => {
     try {
-        const projects = await new Promise((resolve, reject) => {
-            db.all('SELECT * FROM projects ORDER BY date DESC', [], (err, rows) => {
-                if (err) reject(err);
-                else resolve(rows.map(row => ({
-                    ...row,
-                    blocks: JSON.parse(row.blocks)
-                })));
-            });
-        });
+        const projects = await getProjectsFromDatabase();
         res.json({ success: true, projects });
     } catch (error) {
         console.error('获取项目列表失败:', error);
@@ -1103,7 +1102,7 @@ app.get('/api/projects', async (req, res) => {
 });
 
 // 图片上传路由
-app.post('/api/upload', authenticateToken, upload.single('image'), (req, res) => {
+app.post('/api/upload', verifyAdminToken, upload.single('image'), (req, res) => {
     try {
         if (!req.file) {
             throw new Error('没有上传文件');
