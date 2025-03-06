@@ -741,7 +741,7 @@ async function getActivePositionSubscribers() {
 }
 
 // 岗位订阅路由
-app.post('/api/subscribe-positions', verifyAdminToken, async (req, res) => {
+app.post('/api/subscribe-positions', async (req, res) => {
     try {
         const { email } = req.body;
         console.log('收到岗位订阅请求:', email);
