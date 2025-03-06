@@ -30,7 +30,7 @@ app.use('/uploads', express.static('uploads'));
 
 // 添加CORS配置
 app.use(cors({
-    origin: '*',
+    origin: '*',  // 允许所有来源访问
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     credentials: true
@@ -373,7 +373,7 @@ app.get('/api/test-db', (req, res) => {
     );
 });
 
-// 管理员登录路由
+// 管理员登录
 app.post('/api/admin/login', (req, res) => {
     console.log('收到登录请求:', req.body);
     const { password } = req.body;
