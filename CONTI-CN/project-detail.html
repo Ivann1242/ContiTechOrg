@@ -198,7 +198,7 @@
                 }
                 
                 // 修改为新的API路径
-                const response = await fetch(`/api/projects/${projectId}`, {
+                const response = await fetch(`/api/projects?id=${projectId}`, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
