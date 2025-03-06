@@ -136,7 +136,7 @@
                     messageDiv.className = 'login-message success';
                     localStorage.setItem('adminToken', data.token);
                     setTimeout(() => {
-                        window.location.href = 'admin-dashboard.html';
+                        window.location.href = '/admin-dashboard.html';
                     }, 1000);
                 } else {
                     messageDiv.textContent = data.error || '登录失败';
