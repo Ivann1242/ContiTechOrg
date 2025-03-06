@@ -1094,7 +1094,16 @@ app.delete('/api/admin/projects/:id', verifyAdminToken, async (req, res) => {
 // 公开的项目列表路由
 app.get('/api/projects', async (req, res) => {
     try {
-        const projects = await getProjectsFromDatabase();
+        //const projects = await getProjectsFromDatabase();
+        const projects = await new Promise((resolve, reject) => {
+            db.all('SELECT * FROM projects ORDER BY date DESC', [], (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows.map(row => ({
+                    ...row,
+                    blocks: JSON.parse(row.blocks)
+                })));
+            });
+        });
         res.json({ success: true, projects });
     } catch (error) {
         console.error('获取项目列表失败:', error);
@@ -1102,7 +1111,7 @@ app.get('/api/projects', async (req, res) => {
     }
 });
 
-// 图片上传路由
+// 图片上
 app.post('/api/upload', verifyAdminToken, upload.single('image'), (req, res) => {
     try {
         if (!req.file) {
