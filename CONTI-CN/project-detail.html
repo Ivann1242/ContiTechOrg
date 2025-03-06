@@ -290,20 +290,20 @@
         }
 
         // 检查登录状态
-        function checkAuth() {
-            const token = localStorage.getItem('adminToken');
-            if (!token) {
-                window.location.href = 'admin-login.html';
-                return false;
-            }
-            return true;
-        }
+        // function checkAuth() {
+        //     const token = localStorage.getItem('adminToken');
+        //     if (!token) {
+        //         window.location.href = 'admin-login.html';
+        //         return false;
+        //     }
+        //     return true;
+        // }
 
         // 页面加载时先检查登录状态，然后获取项目详情
         document.addEventListener('DOMContentLoaded', function() {
-            if (checkAuth()) {
+            // if (checkAuth()) {
                 loadProjectDetails();
-            }
+            // }
         });
     </script>
 </body>
