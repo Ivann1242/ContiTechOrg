@@ -1092,22 +1092,66 @@ app.delete('/api/admin/projects/:id', verifyAdminToken, async (req, res) => {
 });
 
 // 公开的项目列表路由
+// 添加到 server.js 中其他 API 路由附近
+
+// 获取单个项目详情
 app.get('/api/projects', async (req, res) => {
     try {
-        //const projects = await getProjectsFromDatabase();
-        const projects = await new Promise((resolve, reject) => {
+        const projectId = req.query.id;
+        
+        // 如果没有提供 ID，返回所有项目
+        if (!projectId) {
             db.all('SELECT * FROM projects ORDER BY date DESC', [], (err, rows) => {
-                if (err) reject(err);
-                else resolve(rows.map(row => ({
-                    ...row,
-                    blocks: JSON.parse(row.blocks)
-                })));
+                if (err) {
+                    console.error('获取项目列表失败:', err);
+                    return res.status(500).json({ success: false, error: '获取项目列表失败' });
+                }
+                
+                const projects = rows.map(row => {
+                    try {
+                        return {
+                            ...row,
+                            blocks: JSON.parse(row.blocks || '[]')
+                        };
+                    } catch (e) {
+                        return {
+                            ...row,
+                            blocks: []
+                        };
+                    }
+                });
+                
+                res.json({ success: true, projects });
             });
+            return;
+        }
+        
+        // 通过 ID 获取单个项目
+        db.get('SELECT * FROM projects WHERE id = ?', [projectId], (err, row) => {
+            if (err) {
+                console.error('获取项目详情失败:', err);
+                return res.status(500).json({ success: false, error: '获取项目详情失败' });
+            }
+            
+            if (!row) {
+                return res.status(404).json({ success: false, error: '项目不存在' });
+            }
+            
+            try {
+                const project = {
+                    ...row,
+                    blocks: JSON.parse(row.blocks || '[]')
+                };
+                
+                res.json({ success: true, project });
+            } catch (e) {
+                console.error('解析项目数据失败:', e);
+                res.status(500).json({ success: false, error: '项目数据格式错误' });
+            }
         });
-        res.json({ success: true, projects });
     } catch (error) {
-        console.error('获取项目列表失败:', error);
-        res.status(500).json({ success: false, error: '获取项目列表失败' });
+        console.error('获取项目失败:', error);
+        res.status(500).json({ success: false, error: '服务器内部错误' });
     }
 });
 
