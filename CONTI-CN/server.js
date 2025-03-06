@@ -9,47 +9,30 @@ const fs = require('fs');
 const ejs = require('ejs');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
+const cors = require('cors');
 
 // 添加域名配置
 const DOMAIN = process.env.DOMAIN || 'http://3.22.241.231';
 const BASE_URL = process.env.BASE_URL || DOMAIN;
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const ADMIN_PASSWORD = 'ContiTechOrg$%GFEH&*31HSc88JCEBSKkEcesf';
-const EMAIL_USER = process.env.EMAIL_USER || 'contitechorg@gmail.com';
-const EMAIL_PASS = process.env.EMAIL_PASS || '';
 
-// 基础中间件配置
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// CORS 中间件 - 放在最前面，确保所有路由都应用
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-    next();
-});
-
-// 静态文件中间件
-app.use(express.static(path.join(__dirname)));
-app.use('/uploads', express.static('uploads'));
-
-// 添加请求日志中间件
-app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-    console.log('请求头:', req.headers);
-    if (req.body && Object.keys(req.body).length > 0) {
-        console.log('请求体:', req.body);
-    }
-    next();
-});
+// 添加CORS配置
+app.use(cors({
+    origin: function(origin, callback) {
+        const allowedOrigins = [DOMAIN, BASE_URL, 'http://localhost:3001'];
+        if(!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+//            callback(new Error('CORS policy violation'));
+    	    callback(null,true);
+	}
+    },
+    credentials: true
+}));
 
 // 配置文件上传
 const storage = multer.diskStorage({
@@ -83,8 +66,8 @@ const upload = multer({
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: EMAIL_USER,
-        pass: EMAIL_PASS
+        user: process.env.EMAIL_USER || 'ContiTechOrg@gmail.com',
+        pass: process.env.EMAIL_PASS
     },
     debug: true,
     logger: true,
@@ -97,46 +80,13 @@ transporter.verify(function(error, success) {
         console.error('邮件服务配置错误:', error);
         console.error('请检查 EMAIL_USER 和 EMAIL_PASS 配置');
         console.error('当前配置:', {
-            user: EMAIL_USER,
-            pass: EMAIL_PASS ? '已设置' : '未设置'
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS ? '已设置' : '未设置'
         });
     } else {
         console.log('邮件服务配置成功，准备发送邮件');
     }
 });
-
-// 在顶部添加未捕获异常处理
-process.on('uncaughtException', (err) => {
-    console.error('未捕获的异常:', err);
-    // 记录错误但不退出进程
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('未处理的 Promise 拒绝:', reason);
-    // 记录错误但不退出进程
-});
-
-// 在数据库连接部分添加重试逻辑
-const connectDB = (retries = 5) => {
-    return new Promise((resolve, reject) => {
-        const db = new sqlite3.Database('news.db', (err) => {
-            if (err) {
-                console.error('数据库连接失败:', err);
-                if (retries > 0) {
-                    console.log(`剩余重试次数: ${retries}，3秒后重试...`);
-                    setTimeout(() => {
-                        resolve(connectDB(retries - 1));
-                    }, 3000);
-                } else {
-                    reject(err);
-                }
-            } else {
-                console.log('数据库连接成功');
-                resolve(db);
-            }
-        });
-    });
-};
 
 // 创建数据库连接
 const db = new sqlite3.Database('news.db', (err) => {
@@ -212,42 +162,20 @@ const db = new sqlite3.Database('news.db', (err) => {
                 }
             });
 
-            // 创建项目表（如果不存在）
+            // 创建项目表
             db.run(`CREATE TABLE IF NOT EXISTS projects (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
                 category TEXT NOT NULL,
                 status TEXT NOT NULL,
-                blocks TEXT,
+                blocks TEXT NOT NULL,
                 date TEXT NOT NULL
-            )`, () => {
-                // 检查是否有项目数据，没有则添加测试数据
-                db.get("SELECT COUNT(*) as count FROM projects", [], (err, row) => {
-                    if (!err && row.count === 0) {
-                        // 插入一条测试项目数据
-                        const testProject = {
-                            title: '测试项目',
-                            category: '技术',
-                            status: '进行中',
-                            blocks: JSON.stringify([
-                                { type: 'text', content: '这是一个测试项目的描述。' }
-                            ]),
-                            date: new Date().toISOString()
-                        };
-                        
-                        db.run(
-                            'INSERT INTO projects (title, category, status, blocks, date) VALUES (?, ?, ?, ?, ?)',
-                            [testProject.title, testProject.category, testProject.status, testProject.blocks, testProject.date],
-                            function(err) {
-                                if (err) {
-                                    console.error('插入测试项目数据失败:', err);
-                                } else {
-                                    console.log('测试项目数据插入成功，ID:', this.lastID);
-                                }
-                            }
-                        );
-                    }
-                });
+            )`, (err) => {
+                if (err) {
+                    console.error('创建项目表失败:', err);
+                } else {
+                    console.log('项目表创建或已存在');
+                }
             });
 
             // 所有表创建完成后启动服务器
@@ -318,6 +246,13 @@ async function updateNewsHtmlFile() {
     }
 }
 
+// 基础中间件配置
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname)));
+app.use('/uploads', express.static('uploads')); // 提供图片访问
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 // 添加域名中间件
 app.use((req, res, next) => {
     res.locals.domain = DOMAIN;
@@ -338,95 +273,49 @@ app.get('/', (req, res) => {
 });
 
 // 测试数据库连接
-app.get('/api/test-db', (req, res) => {
-    // 插入测试数据
-    console.log('开始数据库测试...');
-    const testNews = {
-        title: '测试新闻',
-        content: '这是一条测试新闻',
-        date: new Date().toISOString()
-    };
-    
-    console.log('准备插入测试数据:', testNews);
-    console.log('开始数据库保存操作');
-    
-    db.run('INSERT INTO news (title, content, date) VALUES (?, ?, ?)',
-        [testNews.title, testNews.content, testNews.date],
-        function(err) {
-            if (err) {
-                console.error('数据库插入失败:', err);
-                return res.status(500).json({
-                    success: false,
-                    error: err.message
-                });
-            }
-            
-            console.log('数据库插入成功，ID:', this.lastID);
-            const insertedId = this.lastID;
-            
-            // 查询测试数据
-            console.log('测试数据插入成功，ID:', insertedId);
-            console.log('准备查询数据...');
-            
-            db.get('SELECT COUNT(*) as count FROM news', [], (err, row) => {
-                if (err) {
-                    console.error('数据库查询失败:', err);
-                    return res.status(500).json({
-                        success: false,
-                        error: err.message
-                    });
-                }
-                
-                console.log('测试数据查询成功，新闻数量:', row.count);
-                
-                db.get('SELECT * FROM news ORDER BY id DESC LIMIT 1', [], (err, latestNews) => {
-                    if (err) {
-                        console.error('获取最新新闻失败:', err);
-                        return res.status(500).json({
-                            success: false,
-                            error: err.message
-                        });
-                    }
-                    
-                    res.json({
-                        success: true,
-                        message: '数据库测试成功',
-                        newsCount: row.count,
-                        latestNews
-                    });
-                });
-            });
-        }
-    );
-});
-
-// 管理员登录
-app.post('/api/admin/login', (req, res) => {
-    console.log('收到登录请求:', req.body);
-    const { password } = req.body;
-
-    if (!password) {
-        console.log('登录失败：密码为空');
-        return res.status(400).json({ 
-            success: false, 
-            error: '请输入密码' 
-        });
-    }
-
-    if (password === ADMIN_PASSWORD) {
-        const token = jwt.sign({ admin: true }, JWT_SECRET, { expiresIn: '24h' });
-        console.log('登录成功，生成token');
+app.get('/api/test-db', async (req, res) => {
+    try {
+        console.log('开始数据库测试...');
+        // 测试插入
+        const testNews = {
+            title: '测试新闻',
+            content: '这是一条测试新闻',
+            date: new Date().toISOString()
+        };
+        
+        console.log('准备插入测试数据:', testNews);
+        const id = await saveToDatabase(testNews);
+        console.log('测试数据插入成功，ID:', id);
+        
+        // 测试查询
+        console.log('准备查询数据...');
+        const news = await getNewsFromDatabase();
+        console.log('测试数据查询成功，新闻数量:', news.length);
+        
         res.json({ 
             success: true, 
-            token,
-            message: '登录成功' 
+            message: '数据库测试成功',
+            newsCount: news.length,
+            latestNews: news[0]
         });
-    } else {
-        console.log('登录失败：密码错误');
-        res.status(401).json({ 
+    } catch (error) {
+        console.error('数据库测试失败:', error);
+        res.status(500).json({ 
             success: false, 
-            error: '密码错误' 
+            error: '数据库测试失败',
+            details: error.message
         });
+    }
+});
+
+// 管理员登录路由
+app.post('/api/admin/login', (req, res) => {
+    const { password } = req.body;
+    if (password === ADMIN_PASSWORD) {
+        const token = jwt.sign({ admin: true }, JWT_SECRET, { expiresIn: '24h' });
+        res.json({ success: true, token });
+    } else {
+        res.status(401).json({ success: false, error: '密码错误' });
     }
 });
 
@@ -545,7 +434,7 @@ app.post('/api/subscribe', async (req, res) => {
             const info = await transporter.sendMail({
                 from: {
                     name: 'CONTI News',
-                    address: EMAIL_USER
+                    address: process.env.EMAIL_USER || 'ContiTechOrg@gmail.com'
                 },
                 to: email,
                 subject: '欢迎订阅 CONTI 新闻',
@@ -637,7 +526,7 @@ app.post('/api/admin/news', verifyAdminToken, upload.single('image'), async (req
                     const mailOptions = {
                         from: {
                             name: 'CONTI News',
-                            address: EMAIL_USER
+                            address: process.env.EMAIL_USER || 'ContiTechOrg@gmail.com'
                         },
                         subject: `CONTI 新闻更新: ${title}`,
                         html: `
@@ -872,7 +761,7 @@ app.post('/api/subscribe-positions', verifyAdminToken, async (req, res) => {
             const info = await transporter.sendMail({
                 from: {
                     name: 'CONTI Technology Organization',
-                    address: EMAIL_USER
+                    address: process.env.EMAIL_USER
                 },
                 to: email,
                 subject: 'Welcome to CONTI Job Positions Subscription',
@@ -957,7 +846,7 @@ app.post('/api/admin/positions', verifyAdminToken, async (req, res) => {
                 const mailOptions = {
                     from: {
                         name: 'CONTI Jobs',
-                        address: EMAIL_USER
+                        address: process.env.EMAIL_USER
                     },
                     subject: `CONTI 新岗位发布: ${title}`,
                     html: `
@@ -1203,52 +1092,14 @@ app.delete('/api/admin/projects/:id', verifyAdminToken, async (req, res) => {
 });
 
 // 公开的项目列表路由
-app.get('/api/projects', (req, res) => {
-    console.log('收到获取项目列表请求');
-    
-    db.all('SELECT * FROM projects ORDER BY date DESC', [], (err, projects) => {
-        if (err) {
-            console.error('获取项目列表失败:', err);
-            return res.status(500).json({
-                success: false,
-                error: '获取项目列表失败',
-                message: err.message
-            });
-        }
-        
-        // 确保项目是有效数据
-        if (!projects || !Array.isArray(projects)) {
-            console.log('项目数据为空或格式不正确');
-            return res.json({
-                success: true,
-                projects: []
-            });
-        }
-        
-        // 格式化输出
-        const formattedProjects = projects.map(project => {
-            try {
-                // 解析 blocks 字段，它应该是一个 JSON 字符串
-                const blocks = JSON.parse(project.blocks || '[]');
-                return {
-                    ...project,
-                    blocks
-                };
-            } catch (parseError) {
-                console.error('解析项目 blocks 失败:', parseError);
-                return {
-                    ...project,
-                    blocks: []
-                };
-            }
-        });
-        
-        console.log(`成功获取 ${formattedProjects.length} 个项目`);
-        res.json({
-            success: true,
-            projects: formattedProjects
-        });
-    });
+app.get('/api/projects', async (req, res) => {
+    try {
+        const projects = await getProjectsFromDatabase();
+        res.json({ success: true, projects });
+    } catch (error) {
+        console.error('获取项目列表失败:', error);
+        res.status(500).json({ success: false, error: '获取项目列表失败' });
+    }
 });
 
 // 图片上传路由
@@ -1267,71 +1118,120 @@ app.post('/api/upload', verifyAdminToken, upload.single('image'), (req, res) => 
     }
 });
 
-// 添加测试路由
-app.get('/api/test-admin', verifyAdminToken, (req, res) => {
-    res.json({ 
-        success: true, 
-        message: '管理员认证成功' 
-    });
-});
-
-// 修改启动逻辑
-const startServer = (port) => {
+// 检查端口是否被占用并释放
+function checkAndReleasePort(port) {
     return new Promise((resolve, reject) => {
-        const server = app.listen(port, '0.0.0.0', () => {
-            console.log('----------------------------------------');
-            console.log(`服务器启动成功！`);
-            console.log(`本地访问: http://localhost:${port}`);
-            console.log(`远程访问: http://${process.env.DOMAIN}:${port}`);
-            console.log('----------------------------------------');
-            resolve(server);
-        }).on('error', (err) => {
-            console.error('服务器启动失败:', err);
-            reject(err);
-        });
-    });
-};
-
-// 直接启动服务器
-startServer(PORT);
-
-// 添加错误处理中间件
-app.use((err, req, res, next) => {
-    console.error('服务器错误:', err);
-    res.status(500).json({
-        success: false,
-        error: '服务器内部错误'
-    });
-});
-
-// 在文件中添加这个辅助函数
-const getProjectsFromDatabase = () => {
-    return new Promise((resolve, reject) => {
-        db.all('SELECT * FROM projects ORDER BY date DESC', [], (err, projects) => {
-            if (err) {
-                reject(err);
+        const { exec } = require('child_process');
+        
+        // 检查端口占用情况
+        exec(`netstat -ano | findstr :${port}`, (error, stdout, stderr) => {
+            if (error) {
+                // 如果执行命令出错，可能是端口未被占用
+                console.log(`端口 ${port} 未被占用`);
+                resolve();
                 return;
             }
-            
-            // 格式化输出
-            const formattedProjects = projects.map(project => {
-                try {
-                    // 解析 blocks 字段
-                    const blocks = JSON.parse(project.blocks || '[]');
-                    return {
-                        ...project,
-                        blocks
-                    };
-                } catch (parseError) {
-                    console.error('解析项目 blocks 失败:', parseError);
-                    return {
-                        ...project,
-                        blocks: []
-                    };
+
+            if (stdout) {
+                const lines = stdout.split('\n');
+                for (const line of lines) {
+                    // 只处理 LISTENING 状态的连接
+                    if (line.includes('LISTENING')) {
+                        const match = line.match(/\s+(\d+)\s*$/);
+                        if (match && match[1] && match[1] !== '0') {
+                            const pid = match[1];
+                            console.log(`发现端口 ${port} 被进程 ${pid} 占用，尝试释放...`);
+                            
+                            exec(`taskkill /F /PID ${pid}`, (killError, killStdout, killStderr) => {
+                                if (killError) {
+                                    console.error(`无法释放端口 ${port}:`, killError);
+                                    // 尝试使用其他端口
+                                    const newPort = port + 1;
+                                    console.log(`尝试使用新端口: ${newPort}`);
+                                    process.env.PORT = newPort;
+                                    resolve();
+                                } else {
+                                    console.log(`成功释放端口 ${port}`);
+                                    setTimeout(resolve, 1000);
+                                }
+                            });
+                            return;
+                        }
+                    }
                 }
-            });
-            
-            resolve(formattedProjects);
+            }
+            // 如果没有找到 LISTENING 状态的连接，说明端口可用
+            console.log(`端口 ${port} 可用`);
+            resolve();
         });
     });
+}
+
+// 修改服务器启动函数
+const startServer = async (port) => {
+    console.log('----------------------------------------');
+    console.log('正在启动服务器...');
+    
+    try {
+        // 确保uploads文件夹存在
+        const uploadsDir = path.join(__dirname, 'uploads');
+        if (!fs.existsSync(uploadsDir)) {
+            console.log('创建uploads文件夹...');
+            fs.mkdirSync(uploadsDir);
+            console.log('uploads文件夹创建成功');
+        }
+        
+        // 先检查并释放端口
+        await checkAndReleasePort(port);
+        
+        // 获取最终使用的端口（可能在checkAndReleasePort中被修改）
+        const finalPort = process.env.PORT || port;
+        console.log(`尝试在端口 ${finalPort} 上启动服务器`);
+        
+        // 等待一小段时间再启动服务器
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const server = app.listen(finalPort, () => {
+            console.log('----------------------------------------');
+            console.log(`服务器成功启动！`);
+            console.log(`访问地址: http://localhost:${finalPort}`);
+            console.log(`测试路由: http://localhost:${finalPort}/api/test-db`);
+            console.log('----------------------------------------');
+        });
+
+        // 添加优雅关闭处理
+        process.on('SIGINT', () => {
+            console.log('正在关闭服务器...');
+            server.close(() => {
+                console.log('服务器已关闭');
+                db.close((err) => {
+                    if (err) {
+                        console.error('关闭数据库时出错:', err);
+                        process.exit(1);
+                    }
+                    console.log('数据库连接已关闭');
+                    process.exit(0);
+                });
+            });
+        });
+
+        server.on('error', (error) => {
+            if (error.code === 'EADDRINUSE') {
+                console.error('----------------------------------------');
+                console.error(`端口 ${finalPort} 被占用，请尝试使用其他端口`);
+                console.error('可以通过设置环境变量 PORT 来指定其他端口');
+                console.error('----------------------------------------');
+                process.exit(1);
+            } else {
+                console.error('服务器错误:', error);
+            }
+        });
+
+    } catch (error) {
+        console.error('----------------------------------------');
+        console.error('服务器启动失败');
+        console.error('错误详情:', error);
+        console.error('----------------------------------------');
+        process.exit(1);
+    }
 };
