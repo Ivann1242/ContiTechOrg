@@ -28,13 +28,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 app.use('/uploads', express.static('uploads'));
 
-// 添加CORS配置
+// 替换现有的 CORS 配置
 app.use(cors({
-    origin: function(origin, callback) {
-        // 允许所有来源访问
-        callback(null, true);
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin: '*',  // 允许所有来源访问
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     credentials: true
 }));
@@ -1318,3 +1315,35 @@ app.use((err, req, res, next) => {
         error: '服务器内部错误'
     });
 });
+
+// 在文件中添加这个辅助函数
+const getProjectsFromDatabase = () => {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT * FROM projects ORDER BY date DESC', [], (err, projects) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            
+            // 格式化输出
+            const formattedProjects = projects.map(project => {
+                try {
+                    // 解析 blocks 字段
+                    const blocks = JSON.parse(project.blocks || '[]');
+                    return {
+                        ...project,
+                        blocks
+                    };
+                } catch (parseError) {
+                    console.error('解析项目 blocks 失败:', parseError);
+                    return {
+                        ...project,
+                        blocks: []
+                    };
+                }
+            });
+            
+            resolve(formattedProjects);
+        });
+    });
+};
