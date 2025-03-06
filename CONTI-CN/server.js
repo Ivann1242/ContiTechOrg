@@ -30,7 +30,10 @@ app.use('/uploads', express.static('uploads'));
 
 // 添加CORS配置
 app.use(cors({
-    origin: '*',  // 允许所有来源访问
+    origin: function(origin, callback) {
+        // 允许所有来源访问
+        callback(null, true);
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     credentials: true
