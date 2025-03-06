@@ -220,6 +220,45 @@ const db = new sqlite3.Database('news.db', (err) => {
                     console.error('创建项目表失败:', err);
                 } else {
                     console.log('项目表创建或已存在');
+                    
+                    // 检查项目表是否有数据
+                    db.get('SELECT COUNT(*) as count FROM projects', [], (err, row) => {
+                        if (err) {
+                            console.error('检查项目数量失败:', err);
+                            return;
+                        }
+                        
+                        // 如果没有数据，插入一些示例数据
+                        if (row.count === 0) {
+                            console.log('项目表为空，插入示例数据');
+                            
+                            const sampleProject = {
+                                title: '示例项目',
+                                category: '自然语言处理',
+                                status: '进行中',
+                                blocks: JSON.stringify([
+                                    {
+                                        type: 'text',
+                                        content: '这是一个示例项目，用于测试系统功能。'
+                                    }
+                                ]),
+                                date: new Date().toISOString()
+                            };
+                            
+                            db.run('INSERT INTO projects (title, category, status, blocks, date) VALUES (?, ?, ?, ?, ?)',
+                                [sampleProject.title, sampleProject.category, sampleProject.status, sampleProject.blocks, sampleProject.date],
+                                function(err) {
+                                    if (err) {
+                                        console.error('插入示例项目失败:', err);
+                                    } else {
+                                        console.log('示例项目插入成功，ID:', this.lastID);
+                                    }
+                                }
+                            );
+                        } else {
+                            console.log(`项目表中已有 ${row.count} 条数据`);
+                        }
+                    });
                 }
             });
 
@@ -1175,32 +1214,54 @@ app.delete('/api/admin/projects/:id', verifyAdminToken, async (req, res) => {
     }
 });
 
-// 公开的项目列表路由
-app.get('/api/projects', async (req, res) => {
-    try {
-        const projects = await new Promise((resolve, reject) => {
-            db.all('SELECT * FROM projects ORDER BY date DESC', [], (err, rows) => {
-                if (err) {
-                    console.error('查询项目失败:', err);
-                    reject(err);
-                } else {
-                    resolve(rows.map(row => ({
-                        ...row,
-                        blocks: JSON.parse(row.blocks || '[]')
-                    })));
-                }
+// 获取所有项目
+app.get('/api/projects', (req, res) => {
+    console.log('收到获取项目列表请求');
+    
+    // 使用更好的错误处理
+    db.all('SELECT * FROM projects ORDER BY date DESC', [], (err, projects) => {
+        if (err) {
+            console.error('获取项目列表失败:', err);
+            return res.status(500).json({
+                success: false,
+                error: '获取项目列表失败',
+                message: err.message
             });
+        }
+        
+        // 确保项目是有效数据
+        if (!projects || !Array.isArray(projects)) {
+            console.log('项目数据为空或格式不正确');
+            return res.json({
+                success: true,
+                projects: []
+            });
+        }
+        
+        // 格式化输出
+        const formattedProjects = projects.map(project => {
+            try {
+                // 解析 blocks 字段，它应该是一个 JSON 字符串
+                const blocks = JSON.parse(project.blocks || '[]');
+                return {
+                    ...project,
+                    blocks
+                };
+            } catch (parseError) {
+                console.error('解析项目 blocks 失败:', parseError);
+                return {
+                    ...project,
+                    blocks: []
+                };
+            }
         });
         
-        res.json({ success: true, projects });
-    } catch (error) {
-        console.error('获取项目列表失败:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: '获取项目列表失败',
-            details: error.message 
+        console.log(`成功获取 ${formattedProjects.length} 个项目`);
+        res.json({
+            success: true,
+            projects: formattedProjects
         });
-    }
+    });
 });
 
 // 图片上传路由
