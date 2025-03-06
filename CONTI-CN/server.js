@@ -330,14 +330,29 @@ app.get('/api/test-db', (req, res) => {
 app.post('/api/admin/login', (req, res) => {
     console.log('收到登录请求:', req.body);
     const { password } = req.body;
-    
+
+    if (!password) {
+        console.log('登录失败：密码为空');
+        return res.status(400).json({ 
+            success: false, 
+            error: '请输入密码' 
+        });
+    }
+
     if (password === ADMIN_PASSWORD) {
         const token = jwt.sign({ admin: true }, JWT_SECRET, { expiresIn: '24h' });
         console.log('登录成功，生成token');
-        res.json({ success: true, token });
+        res.json({ 
+            success: true, 
+            token,
+            message: '登录成功' 
+        });
     } else {
         console.log('登录失败：密码错误');
-        res.status(401).json({ success: false, error: '密码错误' });
+        res.status(401).json({ 
+            success: false, 
+            error: '密码错误' 
+        });
     }
 });
 
@@ -1155,6 +1170,14 @@ app.post('/api/upload', verifyAdminToken, upload.single('image'), (req, res) => 
         console.error('文件上传失败:', error);
         res.status(500).json({ success: false, error: '文件上传失败' });
     }
+});
+
+// 添加测试路由
+app.get('/api/test-admin', verifyAdminToken, (req, res) => {
+    res.json({ 
+        success: true, 
+        message: '管理员认证成功' 
+    });
 });
 
 // 修改启动逻辑
