@@ -125,11 +125,14 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify({ password })
                 });
 
+                console.log('登录响应状态:', response.status);
                 const data = await response.json();
+                console.log('登录响应数据:', data);
                 
                 if (response.ok && data.success) {
                     messageDiv.textContent = '登录成功，正在跳转...';

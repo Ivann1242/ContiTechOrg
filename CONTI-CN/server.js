@@ -30,14 +30,17 @@ app.use('/uploads', express.static('uploads'));
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     credentials: true
 }));
 
-// 添加路由前缀中间件
+// 添加请求日志中间件
 app.use((req, res, next) => {
-    // 记录请求日志
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    console.log('请求头:', req.headers);
+    if (req.body && Object.keys(req.body).length > 0) {
+        console.log('请求体:', req.body);
+    }
     next();
 });
 
@@ -306,53 +309,50 @@ app.get('/', (req, res) => {
 });
 
 // 测试数据库连接
-app.get('/api/test-db', async (req, res) => {
-    try {
-        console.log('开始数据库测试...');
-        // 测试插入
-        const testNews = {
-            title: '测试新闻',
-            content: '这是一条测试新闻',
-            date: new Date().toISOString()
-        };
-        
-        console.log('准备插入测试数据:', testNews);
-        const id = await saveToDatabase(testNews);
-        console.log('测试数据插入成功，ID:', id);
-        
-        // 测试查询
-        console.log('准备查询数据...');
-        const news = await getNewsFromDatabase();
-        console.log('测试数据查询成功，新闻数量:', news.length);
-        
-        res.json({ 
-            success: true, 
-            message: '数据库测试成功',
-            newsCount: news.length,
-            latestNews: news[0]
-        });
-    } catch (error) {
-        console.error('数据库测试失败:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: '数据库测试失败',
-            details: error.message
-        });
-    }
+app.get('/api/test-db', (req, res) => {
+    db.get('SELECT COUNT(*) as count FROM news', [], (err, row) => {
+        if (err) {
+            res.status(500).json({ success: false, error: err.message });
+        } else {
+            db.get('SELECT * FROM news ORDER BY date DESC LIMIT 1', [], (err, latestNews) => {
+                res.json({
+                    success: true,
+                    message: '数据库测试成功',
+                    newsCount: row.count,
+                    latestNews
+                });
+            });
+        }
+    });
 });
 
 // 管理员登录路由
 app.post('/api/admin/login', (req, res) => {
     console.log('收到登录请求:', req.body);
     const { password } = req.body;
-    
+
+    if (!password) {
+        console.log('登录失败：密码为空');
+        return res.status(400).json({ 
+            success: false, 
+            error: '请输入密码' 
+        });
+    }
+
     if (password === ADMIN_PASSWORD) {
         const token = jwt.sign({ admin: true }, JWT_SECRET, { expiresIn: '24h' });
         console.log('登录成功，生成token');
-        res.json({ success: true, token });
+        res.json({ 
+            success: true, 
+            token,
+            message: '登录成功' 
+        });
     } else {
         console.log('登录失败：密码错误');
-        res.status(401).json({ success: false, error: '密码错误' });
+        res.status(401).json({ 
+            success: false, 
+            error: '密码错误' 
+        });
     }
 });
 
@@ -1170,6 +1170,14 @@ app.post('/api/upload', verifyAdminToken, upload.single('image'), (req, res) => 
         console.error('文件上传失败:', error);
         res.status(500).json({ success: false, error: '文件上传失败' });
     }
+});
+
+// 添加测试路由
+app.get('/api/test-admin', verifyAdminToken, (req, res) => {
+    res.json({ 
+        success: true, 
+        message: '管理员认证成功' 
+    });
 });
 
 // 修改启动逻辑
