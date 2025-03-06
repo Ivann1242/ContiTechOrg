@@ -579,14 +579,40 @@ app.get('/api/admin/news', verifyAdminToken, async (req, res) => {
     }
 });
 
-// 动态新闻页面路由
-app.get('/news', async (req, res) => {
+// 获取新闻列表API
+app.get('/api/news', async (req, res) => {
     try {
-        const news = await getNewsFromDatabase();
-        res.render('news', { news });
+        const newsId = req.query.id;
+        
+        // 如果有ID参数，获取单个新闻
+        if (newsId) {
+            db.get('SELECT * FROM news WHERE id = ?', [newsId], (err, row) => {
+                if (err) {
+                    console.error('获取新闻详情失败:', err);
+                    return res.status(500).json({ success: false, error: '获取新闻详情失败' });
+                }
+                
+                if (!row) {
+                    return res.status(404).json({ success: false, error: '新闻不存在' });
+                }
+                
+                res.json({ success: true, news: row });
+            });
+            return;
+        }
+        
+        // 否则获取所有新闻列表
+        db.all('SELECT * FROM news ORDER BY date DESC', [], (err, rows) => {
+            if (err) {
+                console.error('获取新闻列表失败:', err);
+                return res.status(500).json({ success: false, error: '获取新闻列表失败' });
+            }
+            
+            res.json({ success: true, news: rows });
+        });
     } catch (error) {
-        console.error('渲染新闻页面失败:', error);
-        res.status(500).send('服务器错误');
+        console.error('获取新闻失败:', error);
+        res.status(500).json({ success: false, error: '服务器内部错误' });
     }
 });
 
