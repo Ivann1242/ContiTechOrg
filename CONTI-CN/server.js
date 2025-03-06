@@ -1217,11 +1217,10 @@ app.delete('/api/admin/projects/:id', verifyAdminToken, async (req, res) => {
     }
 });
 
-// 获取所有项目
+// 公开的项目列表路由
 app.get('/api/projects', (req, res) => {
     console.log('收到获取项目列表请求');
     
-    // 使用更好的错误处理
     db.all('SELECT * FROM projects ORDER BY date DESC', [], (err, projects) => {
         if (err) {
             console.error('获取项目列表失败:', err);
