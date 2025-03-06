@@ -188,7 +188,7 @@
     <script>
         async function loadProjectDetails() {
             try {
-                const API_BASE_URL = 'https://ec2-18-119-132-144.us-east-2.compute.amazonaws.com'; // 使用HTTPS
+                
                 // 从 URL 参数获取项目 ID
                 const urlParams = new URLSearchParams(window.location.search);
                 const projectId = urlParams.get('id');
@@ -198,10 +198,9 @@
                 }
                 
                 // 修改为新的API路径
-                const response = await fetch(`${API_BASE_URL}/api/admin/projects/${projectId}`, {
+                const response = await fetch(`/api/projects/${projectId}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     }
