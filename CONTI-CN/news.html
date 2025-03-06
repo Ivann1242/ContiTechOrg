@@ -1,299 +1,269 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新闻 - CONTI</title>
+    <title>新闻动态 - CONTI</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .news-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .news-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .news-card {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .news-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .news-placeholder {
+            width: 100%;
+            height: 200px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+        }
+        
+        .news-content {
+            padding: 20px;
+        }
+        
+        .news-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .news-date {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .news-excerpt {
+            color: #444;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            margin: 50px 0;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            text-align: center;
+            padding: 20px;
+            color: #d9534f;
+        }
+        
+        @media (max-width: 768px) {
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="logo">CONTI</div>
-            <ul class="nav-links">
+    <header>
+        <div class="logo">
+            <a href="index.html">CONTI</a>
+        </div>
+        <nav>
+            <ul>
                 <li><a href="index.html">首页</a></li>
                 <li><a href="about.html">关于我们</a></li>
-                <li><a href="technology.html">技术</a></li>
-                <li><a href="projects.html">项目</a></li>
-                <li><a href="news.html" class="active">新闻</a></li>
+                <li><a href="technology.html">核心技术</a></li>
+                <li><a href="projects.html">项目展示</a></li>
+                <li><a href="news.html" class="active">新闻动态</a></li>
                 <li><a href="join.html">加入我们</a></li>
-                <li><a href="contact.html">联系我们</a></li>
+                <li><a href="contact.html">联系方式</a></li>
             </ul>
-        </div> 
-    </nav>
-
-    <!-- Page Header -->
-    <section class="page-header">
-        <div class="container">
-            <h1>最新动态</h1>
-            <p>了解CONTI的最新发展</p>
+        </nav>
+        <div class="mobile-menu-btn">
+            <span></span>
+            <span></span>
+            <span></span>
         </div>
-    </section>
-
-    <!-- Featured News -->
-    <section class="featured-news">
-        <div class="container">
-            <h2>最新动态</h2>
-            <div class="news-grid">
-                
-                    
-                        <div class="news-item featured" data-id="7">
-                            <div class="news-image">
-                                
-                                    <img src="/uploads/1741045964263-854943043.png" alt="test3">
-                                
-                                <span class="news-category">新闻</span>
-                            </div>
-                            <div class="news-content">
-                                <div class="news-meta">
-                                    <span class="date">2025/3/3</span>
-                                    <span class="read-time">3分钟阅读</span>
-                                </div>
-                                <h2>test3</h2>
-                                <p>I love you dr mosse</p>
-                                <a href="#" class="read-more"><i class="fas fa-arrow-right"></i></a>
-                            </div>
-                        </div>
-                    
-                        <div class="news-item " data-id="6">
-                            <div class="news-image">
-                                
-                                <span class="news-category">新闻</span>
-                            </div>
-                            <div class="news-content">
-                                <div class="news-meta">
-                                    <span class="date">2025/3/3</span>
-                                    <span class="read-time">3分钟阅读</span>
-                                </div>
-                                <h3>测试新闻</h3>
-                                <p>这是一条测试新闻</p>
-                                <a href="#" class="read-more"><i class="fas fa-arrow-right"></i></a>
-                            </div>
-                        </div>
-                    
-                        <div class="news-item " data-id="5">
-                            <div class="news-image">
-                                
-                                <span class="news-category">新闻</span>
-                            </div>
-                            <div class="news-content">
-                                <div class="news-meta">
-                                    <span class="date">2025/3/3</span>
-                                    <span class="read-time">3分钟阅读</span>
-                                </div>
-                                <h3>test2</h3>
-                                <p>333</p>
-                                <a href="#" class="read-more"><i class="fas fa-arrow-right"></i></a>
-                            </div>
-                        </div>
-                    
-                        <div class="news-item " data-id="4">
-                            <div class="news-image">
-                                
-                                <span class="news-category">新闻</span>
-                            </div>
-                            <div class="news-content">
-                                <div class="news-meta">
-                                    <span class="date">2025/3/3</span>
-                                    <span class="read-time">3分钟阅读</span>
-                                </div>
-                                <h3>测试新闻</h3>
-                                <p>这是一条测试新闻</p>
-                                <a href="#" class="read-more"><i class="fas fa-arrow-right"></i></a>
-                            </div>
-                        </div>
-                    
-                        <div class="news-item " data-id="3">
-                            <div class="news-image">
-                                
-                                <span class="news-category">新闻</span>
-                            </div>
-                            <div class="news-content">
-                                <div class="news-meta">
-                                    <span class="date">2025/3/3</span>
-                                    <span class="read-time">3分钟阅读</span>
-                                </div>
-                                <h3>1112</h3>
-                                <p>1112</p>
-                                <a href="#" class="read-more"><i class="fas fa-arrow-right"></i></a>
-                            </div>
-                        </div>
-                    
-                
+    </header>
+    
+    <div class="page-banner">
+        <div class="banner-content">
+            <h1>新闻动态</h1>
+            <p>了解CONTI最新的发展动态和行业资讯</p>
+        </div>
+    </div>
+    
+    <div class="news-container">
+        <div class="news-header">
+            <h2>最新资讯</h2>
+            <p>及时掌握CONTI公司的最新动态和行业趋势</p>
+        </div>
+        
+        <div id="loading" class="loading-spinner">
+            <div class="spinner"></div>
+        </div>
+        
+        <div id="error" class="error-message" style="display: none;">
+            <i class="fas fa-exclamation-circle"></i>
+            <p>加载新闻数据失败，请稍后再试</p>
+        </div>
+        
+        <div id="news-grid" class="news-grid">
+            <!-- 新闻内容将通过API动态加载 -->
+        </div>
+    </div>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">CONTI</div>
+            <div class="footer-links">
+                <h3>快速链接</h3>
+                <ul>
+                    <li><a href="index.html">首页</a></li>
+                    <li><a href="about.html">关于我们</a></li>
+                    <li><a href="technology.html">核心技术</a></li>
+                    <li><a href="projects.html">项目展示</a></li>
+                    <li><a href="news.html">新闻动态</a></li>
+                    <li><a href="join.html">加入我们</a></li>
+                    <li><a href="contact.html">联系方式</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h3>联系我们</h3>
+                <p><i class="fas fa-envelope"></i> <a href="mailto:ContiTechOrg@gmail.com">ContiTechOrg@gmail.com</a></p>
+                <p><i class="fas fa-map-marker-alt"></i> 中国宁波</p>
             </div>
         </div>
-    </section>
-
-    <!-- Newsletter Signup -->
-    <section class="newsletter-section">
-        <div class="container">
-            <h2>保持更新</h2>
-            <p>订阅我们的通讯以获取最新动态和见解</p>
-            <div id="subscriptionMessage" class="hidden"></div>
-            <form id="subscriptionForm" class="newsletter-form">
-                <input type="email" id="email" placeholder="输入您的邮箱" required>
-                <button type="submit" class="btn primary" id="subscribeBtn">订阅</button>
-            </form>
-            <div id="unsubscribeSection" class="hidden">
-                <p>已经订阅？</p>
-                <form id="unsubscribeForm" class="newsletter-form">
-                    <input type="email" id="unsubscribeEmail" placeholder="输入您的邮箱" required>
-                    <button type="submit" class="btn secondary">取消订阅</button>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h4>Contact Us</h4>
-                    <p><i class="fas fa-envelope"></i> Email: ContiTechOrg@gmail.com</p>
-                    <p><i class="fas fa-phone"></i> Phone: 412-654-0901</p>
-                </div>
-                <div class="footer-section">
-                    <h4>Follow Us</h4>
-                    <div class="social-links">
-                        <a href="https://www.linkedin.com/company/106237409/admin/dashboard/" title="LinkedIn" target="_blank"><i class="fab fa-linkedin"></i></a>
-                        <a href="https://www.instagram.com/contitechorg/" title="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
-                        <a href="#" title="GitHub"><i class="fab fa-github"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 CONTI. All rights reserved.</p>
-            </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 CONTI. 保留所有权利。</p>
         </div>
     </footer>
 
-    <style>
-    .hidden {
-        display: none;
-    }
-    #subscriptionMessage {
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 4px;
-    }
-    .success {
-        background-color: #d4edda;
-        color: #155724;
-    }
-    .error {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-    .newsletter-section {
-        padding: 40px 0;
-        background-color: #f8f9fa;
-    }
-    .newsletter-form {
-        display: flex;
-        gap: 10px;
-        max-width: 500px;
-        margin: 20px auto;
-    }
-    .newsletter-form input {
-        flex: 1;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-    #unsubscribeSection {
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 1px solid #ddd;
-    }
-    </style>
-
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const subscriptionForm = document.getElementById('subscriptionForm');
-        const unsubscribeForm = document.getElementById('unsubscribeForm');
-        const messageDiv = document.getElementById('subscriptionMessage');
-        const unsubscribeSection = document.getElementById('unsubscribeSection');
-
-        // 处理订阅表单提交
-        subscriptionForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
+        // 移动菜单切换
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const nav = document.querySelector('nav');
+        
+        mobileMenuBtn.addEventListener('click', function() {
+            this.classList.toggle('active');
+            nav.classList.toggle('active');
+        });
+        
+        // 动态加载新闻数据
+        async function loadNews() {
+            const loadingElement = document.getElementById('loading');
+            const errorElement = document.getElementById('error');
+            const newsGrid = document.getElementById('news-grid');
             
             try {
-                const response = await fetch('/api/subscribe', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ email })
-                });
-
+                loadingElement.style.display = 'flex';
+                errorElement.style.display = 'none';
+                newsGrid.innerHTML = '';
+                
+                const response = await fetch('/api/news');
+                if (!response.ok) {
+                    throw new Error('加载新闻失败');
+                }
+                
                 const data = await response.json();
                 
-                if (response.ok && data.success) {
-                    messageDiv.textContent = '订阅成功！感谢您的关注。';
-                    messageDiv.className = 'subscription-message success';
-                    document.getElementById('email').value = '';
-                } else {
-                    messageDiv.textContent = data.error || '订阅失败，请稍后重试';
-                    messageDiv.className = 'subscription-message error';
+                if (!data.success || !data.news) {
+                    throw new Error('新闻数据格式不正确');
                 }
-            } catch (error) {
-                console.error('订阅请求失败:', error);
-                messageDiv.textContent = '订阅失败，请稍后重试';
-                messageDiv.className = 'subscription-message error';
-            }
-        });
-
-        // 处理取消订阅表单提交
-        unsubscribeForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('unsubscribeEmail').value;
-            
-            try {
-                const response = await fetch('/api/unsubscribe', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ email })
-                });
-
-                const data = await response.json();
                 
-                if (response.ok && data.success) {
-                    messageDiv.textContent = '取消订阅成功！';
-                    messageDiv.className = 'subscription-message success';
-                    document.getElementById('unsubscribeEmail').value = '';
-                } else {
-                    messageDiv.textContent = data.error || '取消订阅失败，请稍后重试';
-                    messageDiv.className = 'subscription-message error';
+                if (data.news.length === 0) {
+                    newsGrid.innerHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #666;">
+                            <i class="fas fa-info-circle"></i>
+                            <p>暂无新闻信息</p>
+                        </div>
+                    `;
+                    return;
                 }
+                
+                data.news.forEach(item => {
+                    const formattedDate = new Date(item.date).toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+                    
+                    const excerpt = item.content.length > 100 
+                        ? item.content.substring(0, 100) + '...' 
+                        : item.content;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'news-card';
+                    card.innerHTML = `
+                        ${item.image_url 
+                            ? `<img src="${item.image_url}" alt="${item.title}" class="news-image" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'news-placeholder\\'><i class=\\'fas fa-image\\'></i></div>';">` 
+                            : `<div class="news-placeholder"><i class="fas fa-image"></i></div>`
+                        }
+                        <div class="news-content">
+                            <h3 class="news-title">${item.title}</h3>
+                            <p class="news-date"><i class="far fa-calendar-alt"></i> ${formattedDate}</p>
+                            <p class="news-excerpt">${excerpt}</p>
+                        </div>
+                    `;
+                    newsGrid.appendChild(card);
+                });
+                
             } catch (error) {
-                console.error('取消订阅请求失败:', error);
-                messageDiv.textContent = '取消订阅失败，请稍后重试';
-                messageDiv.className = 'subscription-message error';
+                console.error('加载新闻失败:', error);
+                errorElement.style.display = 'block';
+            } finally {
+                loadingElement.style.display = 'none';
             }
-        });
-
-        // 显示取消订阅部分的切换按钮
-        const toggleUnsubscribe = document.createElement('button');
-        toggleUnsubscribe.textContent = '已经订阅？点击这里取消订阅';
-        toggleUnsubscribe.className = 'btn secondary';
-        toggleUnsubscribe.style.marginTop = '10px';
-        toggleUnsubscribe.onclick = function(e) {
-            e.preventDefault();
-            unsubscribeSection.classList.toggle('hidden');
-        };
-        subscriptionForm.after(toggleUnsubscribe);
-    });
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadNews);
     </script>
 </body>
 </html> 
