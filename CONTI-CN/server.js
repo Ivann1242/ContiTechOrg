@@ -19,6 +19,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const ADMIN_PASSWORD = 'ContiTechOrg$%GFEH&*31HSc88JCEBSKkEcesf';
+const EMAIL_USER = process.env.EMAIL_USER || 'contitechorg@gmail.com';
+const EMAIL_PASS = process.env.EMAIL_PASS || '';
 
 // 基础中间件配置
 app.use(express.json());
@@ -76,8 +78,8 @@ const upload = multer({
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER || 'ContiTechOrg@gmail.com',
-        pass: process.env.EMAIL_PASS
+        user: EMAIL_USER,
+        pass: EMAIL_PASS
     },
     debug: true,
     logger: true,
@@ -90,8 +92,8 @@ transporter.verify(function(error, success) {
         console.error('邮件服务配置错误:', error);
         console.error('请检查 EMAIL_USER 和 EMAIL_PASS 配置');
         console.error('当前配置:', {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS ? '已设置' : '未设置'
+            user: EMAIL_USER,
+            pass: EMAIL_PASS ? '已设置' : '未设置'
         });
     } else {
         console.log('邮件服务配置成功，准备发送邮件');
@@ -310,20 +312,65 @@ app.get('/', (req, res) => {
 
 // 测试数据库连接
 app.get('/api/test-db', (req, res) => {
-    db.get('SELECT COUNT(*) as count FROM news', [], (err, row) => {
-        if (err) {
-            res.status(500).json({ success: false, error: err.message });
-        } else {
-            db.get('SELECT * FROM news ORDER BY date DESC LIMIT 1', [], (err, latestNews) => {
-                res.json({
-                    success: true,
-                    message: '数据库测试成功',
-                    newsCount: row.count,
-                    latestNews
+    // 插入测试数据
+    console.log('开始数据库测试...');
+    const testNews = {
+        title: '测试新闻',
+        content: '这是一条测试新闻',
+        date: new Date().toISOString()
+    };
+    
+    console.log('准备插入测试数据:', testNews);
+    console.log('开始数据库保存操作');
+    
+    db.run('INSERT INTO news (title, content, date) VALUES (?, ?, ?)',
+        [testNews.title, testNews.content, testNews.date],
+        function(err) {
+            if (err) {
+                console.error('数据库插入失败:', err);
+                return res.status(500).json({
+                    success: false,
+                    error: err.message
+                });
+            }
+            
+            console.log('数据库插入成功，ID:', this.lastID);
+            const insertedId = this.lastID;
+            
+            // 查询测试数据
+            console.log('测试数据插入成功，ID:', insertedId);
+            console.log('准备查询数据...');
+            
+            db.get('SELECT COUNT(*) as count FROM news', [], (err, row) => {
+                if (err) {
+                    console.error('数据库查询失败:', err);
+                    return res.status(500).json({
+                        success: false,
+                        error: err.message
+                    });
+                }
+                
+                console.log('测试数据查询成功，新闻数量:', row.count);
+                
+                db.get('SELECT * FROM news ORDER BY id DESC LIMIT 1', [], (err, latestNews) => {
+                    if (err) {
+                        console.error('获取最新新闻失败:', err);
+                        return res.status(500).json({
+                            success: false,
+                            error: err.message
+                        });
+                    }
+                    
+                    res.json({
+                        success: true,
+                        message: '数据库测试成功',
+                        newsCount: row.count,
+                        latestNews
+                    });
                 });
             });
         }
-    });
+    );
 });
 
 // 管理员登录路由
@@ -471,7 +518,7 @@ app.post('/api/subscribe', async (req, res) => {
             const info = await transporter.sendMail({
                 from: {
                     name: 'CONTI News',
-                    address: process.env.EMAIL_USER || 'ContiTechOrg@gmail.com'
+                    address: EMAIL_USER
                 },
                 to: email,
                 subject: '欢迎订阅 CONTI 新闻',
@@ -563,7 +610,7 @@ app.post('/api/admin/news', verifyAdminToken, upload.single('image'), async (req
                     const mailOptions = {
                         from: {
                             name: 'CONTI News',
-                            address: process.env.EMAIL_USER || 'ContiTechOrg@gmail.com'
+                            address: EMAIL_USER
                         },
                         subject: `CONTI 新闻更新: ${title}`,
                         html: `
@@ -798,7 +845,7 @@ app.post('/api/subscribe-positions', verifyAdminToken, async (req, res) => {
             const info = await transporter.sendMail({
                 from: {
                     name: 'CONTI Technology Organization',
-                    address: process.env.EMAIL_USER
+                    address: EMAIL_USER
                 },
                 to: email,
                 subject: 'Welcome to CONTI Job Positions Subscription',
@@ -883,7 +930,7 @@ app.post('/api/admin/positions', verifyAdminToken, async (req, res) => {
                 const mailOptions = {
                     from: {
                         name: 'CONTI Jobs',
-                        address: process.env.EMAIL_USER
+                        address: EMAIL_USER
                     },
                     subject: `CONTI 新岗位发布: ${title}`,
                     html: `
