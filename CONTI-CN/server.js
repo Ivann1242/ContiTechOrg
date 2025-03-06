@@ -9,6 +9,29 @@ const fs = require('fs');
 const ejs = require('ejs');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
+const cors = require('cors');
+
+// 添加域名配置
+const DOMAIN = process.env.DOMAIN || 'http://3.22.241.231';
+const BASE_URL = process.env.BASE_URL || DOMAIN;
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const ADMIN_PASSWORD = 'ContiTechOrg$%GFEH&*31HSc88JCEBSKkEcesf';
+
+// 添加CORS配置
+app.use(cors({
+    origin: function(origin, callback) {
+        const allowedOrigins = [DOMAIN, BASE_URL, 'http://localhost:3001'];
+        if(!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('CORS policy violation'));
+        }
+    },
+    credentials: true
+}));
 
 // 配置文件上传
 const storage = multer.diskStorage({
@@ -37,12 +60,6 @@ const upload = multer({
         cb(null, true);
     }
 });
-
-const app = express();
-const PORT = process.env.PORT || 3001;
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-const ADMIN_PASSWORD = 'ContiTechOrg$%GFEH&*31HSc88JCEBSKkEcesf';
-const BASE_URL = process.env.BASE_URL || 'http://ec2-18-119-132-144.us-east-2.compute.amazonaws.com';
 
 // 配置邮件发送
 const transporter = nodemailer.createTransport({
@@ -228,12 +245,19 @@ async function updateNewsHtmlFile() {
     }
 }
 
-// 中间件
+// 基础中间件配置
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname)));
 app.use('/uploads', express.static('uploads')); // 提供图片访问
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
+// 添加域名中间件
+app.use((req, res, next) => {
+    res.locals.domain = DOMAIN;
+    res.locals.baseUrl = BASE_URL;
+    next();
+});
 
 // 根路由测试
 app.get('/', (req, res) => {

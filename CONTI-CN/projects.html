@@ -223,8 +223,7 @@
         // 获取并显示项目列表
         async function loadProjects() {
             try {
-                const API_BASE_URL = 'https://ec2-18-119-132-144.us-east-2.compute.amazonaws.com'; // 使用HTTPS
-                const response = await fetch(`${API_BASE_URL}/api/projects`, {
+                const response = await fetch('/api/projects', {  // 使用相对路径
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
