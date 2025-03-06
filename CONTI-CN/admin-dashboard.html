@@ -1261,12 +1261,14 @@
             }
         }
 
-        // 页面加载时检查认证并加载新闻列表
+        // 页面加载时检查认证
         document.addEventListener('DOMContentLoaded', function() {
-            const token = checkAuth();
-            if (token) {
-                loadNewsList();
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                window.location.href = '/admin-login.html';
+                return;
             }
+            loadProjects();
         });
 
         async function loadProjects() {

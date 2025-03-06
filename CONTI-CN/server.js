@@ -16,22 +16,30 @@ const DOMAIN = process.env.DOMAIN || 'http://3.22.241.231';
 const BASE_URL = process.env.BASE_URL || DOMAIN;
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const ADMIN_PASSWORD = 'ContiTechOrg$%GFEH&*31HSc88JCEBSKkEcesf';
 
+// 基础中间件配置
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname)));
+app.use('/uploads', express.static('uploads'));
+
 // 添加CORS配置
 app.use(cors({
-    origin: function(origin, callback) {
-        const allowedOrigins = [DOMAIN, BASE_URL, 'http://localhost:3001'];
-        if(!origin || allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('CORS policy violation'));
-        }
-    },
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
 }));
+
+// 添加路由前缀中间件
+app.use((req, res, next) => {
+    // 记录请求日志
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    next();
+});
 
 // 配置文件上传
 const storage = multer.diskStorage({
@@ -86,6 +94,39 @@ transporter.verify(function(error, success) {
         console.log('邮件服务配置成功，准备发送邮件');
     }
 });
+
+// 在顶部添加未捕获异常处理
+process.on('uncaughtException', (err) => {
+    console.error('未捕获的异常:', err);
+    // 记录错误但不退出进程
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('未处理的 Promise 拒绝:', reason);
+    // 记录错误但不退出进程
+});
+
+// 在数据库连接部分添加重试逻辑
+const connectDB = (retries = 5) => {
+    return new Promise((resolve, reject) => {
+        const db = new sqlite3.Database('news.db', (err) => {
+            if (err) {
+                console.error('数据库连接失败:', err);
+                if (retries > 0) {
+                    console.log(`剩余重试次数: ${retries}，3秒后重试...`);
+                    setTimeout(() => {
+                        resolve(connectDB(retries - 1));
+                    }, 3000);
+                } else {
+                    reject(err);
+                }
+            } else {
+                console.log('数据库连接成功');
+                resolve(db);
+            }
+        });
+    });
+};
 
 // 创建数据库连接
 const db = new sqlite3.Database('news.db', (err) => {
@@ -245,13 +286,6 @@ async function updateNewsHtmlFile() {
     }
 }
 
-// 基础中间件配置
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname)));
-app.use('/uploads', express.static('uploads')); // 提供图片访问
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-
 // 添加域名中间件
 app.use((req, res, next) => {
     res.locals.domain = DOMAIN;
@@ -309,11 +343,15 @@ app.get('/api/test-db', async (req, res) => {
 
 // 管理员登录路由
 app.post('/api/admin/login', (req, res) => {
+    console.log('收到登录请求:', req.body);
     const { password } = req.body;
+    
     if (password === ADMIN_PASSWORD) {
         const token = jwt.sign({ admin: true }, JWT_SECRET, { expiresIn: '24h' });
+        console.log('登录成功，生成token');
         res.json({ success: true, token });
     } else {
+        console.log('登录失败：密码错误');
         res.status(401).json({ success: false, error: '密码错误' });
     }
 });
@@ -1093,11 +1131,28 @@ app.delete('/api/admin/projects/:id', verifyAdminToken, async (req, res) => {
 // 公开的项目列表路由
 app.get('/api/projects', async (req, res) => {
     try {
-        const projects = await getProjectsFromDatabase();
+        const projects = await new Promise((resolve, reject) => {
+            db.all('SELECT * FROM projects ORDER BY date DESC', [], (err, rows) => {
+                if (err) {
+                    console.error('查询项目失败:', err);
+                    reject(err);
+                } else {
+                    resolve(rows.map(row => ({
+                        ...row,
+                        blocks: JSON.parse(row.blocks || '[]')
+                    })));
+                }
+            });
+        });
+        
         res.json({ success: true, projects });
     } catch (error) {
         console.error('获取项目列表失败:', error);
-        res.status(500).json({ success: false, error: '获取项目列表失败' });
+        res.status(500).json({ 
+            success: false, 
+            error: '获取项目列表失败',
+            details: error.message 
+        });
     }
 });
 
@@ -1117,120 +1172,31 @@ app.post('/api/upload', verifyAdminToken, upload.single('image'), (req, res) => 
     }
 });
 
-// 检查端口是否被占用并释放
-function checkAndReleasePort(port) {
+// 修改启动逻辑
+const startServer = (port) => {
     return new Promise((resolve, reject) => {
-        const { exec } = require('child_process');
-        
-        // 检查端口占用情况
-        exec(`netstat -ano | findstr :${port}`, (error, stdout, stderr) => {
-            if (error) {
-                // 如果执行命令出错，可能是端口未被占用
-                console.log(`端口 ${port} 未被占用`);
-                resolve();
-                return;
-            }
-
-            if (stdout) {
-                const lines = stdout.split('\n');
-                for (const line of lines) {
-                    // 只处理 LISTENING 状态的连接
-                    if (line.includes('LISTENING')) {
-                        const match = line.match(/\s+(\d+)\s*$/);
-                        if (match && match[1] && match[1] !== '0') {
-                            const pid = match[1];
-                            console.log(`发现端口 ${port} 被进程 ${pid} 占用，尝试释放...`);
-                            
-                            exec(`taskkill /F /PID ${pid}`, (killError, killStdout, killStderr) => {
-                                if (killError) {
-                                    console.error(`无法释放端口 ${port}:`, killError);
-                                    // 尝试使用其他端口
-                                    const newPort = port + 1;
-                                    console.log(`尝试使用新端口: ${newPort}`);
-                                    process.env.PORT = newPort;
-                                    resolve();
-                                } else {
-                                    console.log(`成功释放端口 ${port}`);
-                                    setTimeout(resolve, 1000);
-                                }
-                            });
-                            return;
-                        }
-                    }
-                }
-            }
-            // 如果没有找到 LISTENING 状态的连接，说明端口可用
-            console.log(`端口 ${port} 可用`);
-            resolve();
+        const server = app.listen(port, '0.0.0.0', () => {
+            console.log('----------------------------------------');
+            console.log(`服务器启动成功！`);
+            console.log(`本地访问: http://localhost:${port}`);
+            console.log(`远程访问: http://${process.env.DOMAIN}:${port}`);
+            console.log('----------------------------------------');
+            resolve(server);
+        }).on('error', (err) => {
+            console.error('服务器启动失败:', err);
+            reject(err);
         });
     });
-}
-
-// 修改服务器启动函数
-const startServer = async (port) => {
-    console.log('----------------------------------------');
-    console.log('正在启动服务器...');
-    
-    try {
-        // 确保uploads文件夹存在
-        const uploadsDir = path.join(__dirname, 'uploads');
-        if (!fs.existsSync(uploadsDir)) {
-            console.log('创建uploads文件夹...');
-            fs.mkdirSync(uploadsDir);
-            console.log('uploads文件夹创建成功');
-        }
-        
-        // 先检查并释放端口
-        await checkAndReleasePort(port);
-        
-        // 获取最终使用的端口（可能在checkAndReleasePort中被修改）
-        const finalPort = process.env.PORT || port;
-        console.log(`尝试在端口 ${finalPort} 上启动服务器`);
-        
-        // 等待一小段时间再启动服务器
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const server = app.listen(finalPort, () => {
-            console.log('----------------------------------------');
-            console.log(`服务器成功启动！`);
-            console.log(`访问地址: http://localhost:${finalPort}`);
-            console.log(`测试路由: http://localhost:${finalPort}/api/test-db`);
-            console.log('----------------------------------------');
-        });
-
-        // 添加优雅关闭处理
-        process.on('SIGINT', () => {
-            console.log('正在关闭服务器...');
-            server.close(() => {
-                console.log('服务器已关闭');
-                db.close((err) => {
-                    if (err) {
-                        console.error('关闭数据库时出错:', err);
-                        process.exit(1);
-                    }
-                    console.log('数据库连接已关闭');
-                    process.exit(0);
-                });
-            });
-        });
-
-        server.on('error', (error) => {
-            if (error.code === 'EADDRINUSE') {
-                console.error('----------------------------------------');
-                console.error(`端口 ${finalPort} 被占用，请尝试使用其他端口`);
-                console.error('可以通过设置环境变量 PORT 来指定其他端口');
-                console.error('----------------------------------------');
-                process.exit(1);
-            } else {
-                console.error('服务器错误:', error);
-            }
-        });
-
-    } catch (error) {
-        console.error('----------------------------------------');
-        console.error('服务器启动失败');
-        console.error('错误详情:', error);
-        console.error('----------------------------------------');
-        process.exit(1);
-    }
 };
+
+// 直接启动服务器
+startServer(PORT);
+
+// 添加错误处理中间件
+app.use((err, req, res, next) => {
+    console.error('服务器错误:', err);
+    res.status(500).json({
+        success: false,
+        error: '服务器内部错误'
+    });
+});

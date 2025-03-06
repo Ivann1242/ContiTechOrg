@@ -143,6 +143,7 @@
                     messageDiv.className = 'login-message error';
                 }
             } catch (error) {
+                console.error('登录请求失败:', error);
                 messageDiv.textContent = '登录失败，请稍后重试';
                 messageDiv.className = 'login-message error';
             }

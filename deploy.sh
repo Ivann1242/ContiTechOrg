@@ -3,6 +3,7 @@
 # 部署配置
 DEPLOY_DIR="/var/www/ContiTechOrg/CONTI-CN"
 DOMAIN="3.22.241.231"
+PORT=3000
 PM2_APP_NAME="conti-server"
 REPO_URL="git@github.com:Ivann1242/ContiTechOrg.git"
 BRANCH="main"
@@ -26,7 +27,7 @@ check_server() {
     
     while [ $attempt -le $max_attempts ]; do
         log "检查服务器状态 (尝试 $attempt/$max_attempts)..."
-        if curl -s "http://$DOMAIN:3001/api/test-db" > /dev/null; then
+        if curl -s "http://$DOMAIN:$PORT/api/test-db" > /dev/null; then
             log "服务器响应正常"
             return 0
         else
@@ -64,7 +65,7 @@ npm install || handle_error "npm install 失败"
 log "更新环境变量..."
 cat > .env << EOF || handle_error "无法创建 .env 文件"
 DOMAIN=http://$DOMAIN
-PORT=3001
+PORT=$PORT
 NODE_ENV=production
 EMAIL_USER=ContiTechOrg@gmail.com
 EMAIL_PASS=gbrkmamctxmlhloq
@@ -85,14 +86,19 @@ pm2 delete all 2>/dev/null || true
 
 # 启动新进程
 log "启动服务器..."
-NODE_ENV=production pm2 start server.js --name $PM2_APP_NAME --update-env || handle_error "无法启动服务器"
+NODE_ENV=production PORT=3000 pm2 start server.js \
+    --name $PM2_APP_NAME \
+    --update-env \
+    --time \
+    --log-date-format "YYYY-MM-DD HH:mm:ss" \
+    || handle_error "无法启动服务器"
 
 # 保存 PM2 进程列表
 log "保存进程配置..."
 pm2 save --force || handle_error "无法保存 PM2 配置"
 
 log "部署完成!"
-log "网站可以通过 http://$DOMAIN:3001 访问"
+log "网站可以通过 http://$DOMAIN:$PORT 访问"
 
 # 显示PM2状态
 pm2 status
